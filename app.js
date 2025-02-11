@@ -2,7 +2,7 @@
 
 //import external modules
 const express = require("express");
-const session = require("express-session");
+// const session = require("express-session");
 const SQLiteStore = require("connect-sqlite3")(session); //create the "SQLiteStore" object from session
 const socketIO = require("socket.io");
 const path = require("path");
