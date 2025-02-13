@@ -1,6 +1,3 @@
-const jwt = require('jsonwebtoken');
-const session = require('express-session');
-
 const AUTH_URL = 'https://formbar.yorktechapps.com/oauth';
 const THIS_URL = 'http://localhost:3000/login';
 
