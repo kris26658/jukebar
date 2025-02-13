@@ -5,47 +5,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jukebar</title>
-    <link rel="stylesheet" href="/public/style.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/homepage.css">
 </head>
 
 <body>
     <% if (username) { %>
         <div id="header">
-            <h1>Welcome, <%= username %>!</h1>
+            <a href="/" id="headerLogo">Jukebar</a>
             <div id="pageButtons">
-                <ul>
-                    <a href="">
-                        <button>Soundboard</button>
-                    </a>
-                </ul>
-                <ul>
-                    <a href="">
-                        <button>Youtube</button>
-                    </a>
-                </ul>
-                <ul>
-                    <a href="">
-                        <button>Spotify</button>
-                    </a>
-                </ul>
+                <button class="headerTab" href="soundboard.ejs">Soundboard</button>
+                <button class="headerTab" href="youtube.ejs">Youtube</button>
+                <button class="headerTab" href="spotify.ejs">Spotify</button>
             </div>
+            <p id="version">Alpha v 1.0.0</p>
         </div>
 
         <div id="tut">
+            <h1 class="headerText">Welcome, <%= username %>!</h1>
             <h2>How to use Jukebar</h2>
-            <p class="desc">Jukebar is a Formbar plugin that allows users to play sounds. There are three ways you can use
+            <p class="desc">Jukebar is a Formbar plugin that allows users to play sounds. There are three ways you can
+                use
                 it:</p>
             <div id="methodList">
                 <ul>
-                    <h3><a href="">Soundboard</a></h3>
+                    <h3><a href="soundboard.ejs">Soundboard</a></h3>
                     <p>Allows you to select sounds from a pre-approved list.</p>
                 </ul>
                 <ul>
-                    <h3><a href="">YouTube</a></h3>
+                    <h3><a href="youtube.ejs">YouTube</a></h3>
                     <p>Allows you to play audio from a provided YouTube link.</p>
                 </ul>
                 <ul>
-                    <h3><a href="">Spotify</a></h3>
+                    <h3><a href="spotify.ejs">Spotify</a></h3>
                     <p>Allows you to search for and play songs off of Spotify.</p>
                 </ul>
             </div>
@@ -62,12 +54,11 @@
                     <li>Sound</li>
                     <li>Sound</li>
                 </ol>
-        </div>
+            </div>
 
-        <% } else { %>
-            <h1>Please log in:</h1>
-            <a href="/login">Login</a>
-            <% } %>
+            <% } else { %>
+                <% res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login'); %>
+                    <% } %>
 </body>
 
 </html>
