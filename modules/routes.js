@@ -39,8 +39,12 @@ const logout = (req, res) => {
     res.redirect('/');
 };
 
+const soundboard = (_, res) => {
+    res.render('soundboard.ejs');
+};
+
 router.get('/', index);
 router.get('/login', login);
 router.get('/logout', logout);
-
+router.get('/soundboard', soundboard);
 module.exports = router;
