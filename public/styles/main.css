@@ -1,4 +1,4 @@
-/* tags */
+/* Tags */
 
 :root {
     /*All pages can use this set of colors*/
@@ -37,12 +37,13 @@
 
     --bg-light: #d0c8e0;
     --bg-light-blue: #def;
+    --bg-light-green: #c8e0c8;
 }
 
 body {
     font: 16px "Segoe UI", sans-serif;
     padding: 8px;
-    --theme-color: var(--color-blue);
+    --theme-color: var(--color-green);
     transition: background-color 0.5s, color 0.5s;
 }
 
@@ -59,6 +60,10 @@ a {
     text-decoration: none;
 }
 
+p {
+    margin: 8px 0;
+}
+
 * {
     accent-color: var(--theme-color);
 }
@@ -67,13 +72,12 @@ input {
     font-size: inherit;
 }
 
-
-button {
+#header button {
     padding: 3px 6px;
     border-radius: 8px;
     font-size: inherit;
     font-family: inherit;
-    background-color: var(--bg-light-blue);
+    background-color: var(--bg-light-green);
     color: var(--theme-color);
     border: 2px solid var(--theme-color);
     margin: 2px 1px;
@@ -83,5 +87,76 @@ button {
 }
 
 /* IDs */
+#colorContent {
+    background-color: var(--bg-light);
+}
 
-/* classes */
+#content {
+	width: 1200px;
+    margin: auto;
+    margin-top: 100px;
+	padding: 100px 10px 10px;
+	background: white;
+	overflow: auto;
+	position: relative;
+}
+
+#header {
+    position: fixed;
+    width: 110%;
+    z-index: 1;
+    top: 0;
+    left: -5%;
+    display: flex;
+    justify-content: center;
+    box-shadow: 0 3px 10px black;
+    user-select: none;
+    animation: gradient 5s ease infinite;
+    transition: filter 0.5s;
+    background: linear-gradient(to right, var(--color-green), var(--color-purple));
+    background: linear-gradient(-30deg, var(--color-green), var(--color-purple));
+    background-size: 400% 400%;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#header #logo {
+    padding: 8px 16px 10px;
+    font-size: 24px;
+    font-family: 'Arial Black';
+    color: white;
+    text-decoration: underline dotted;
+    cursor: pointer;
+}
+
+/* Classes */
+
+#header .tab {
+    padding: 12px 16px;
+    font-size: 21px;
+    cursor: pointer;
+}
+
+#header .tab:hover, #header .tab:focus {
+    background-color: #00000055;
+    color: white;
+}
+
+.contentBox {
+	border: solid 2px black;
+	border-radius: 10px;
+	padding: 20px !important;
+	font-size: 20px;
+}

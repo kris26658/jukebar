@@ -6,59 +6,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jukebar</title>
     <link rel="stylesheet" href="../styles/main.css">
-    <link rel="stylesheet" href="../styles/homepage.css">
+    <link rel="stylesheet" href="../styles/home.css">
 </head>
 
-<body>
+<body id="colorContent">
     <% if (username) { %>
         <div id="header">
-            <a href="/" id="headerLogo">Jukebar</a>
-            <div id="pageButtons">
-                <button class="headerTab" href="soundboard.ejs">Soundboard</button>
-                <button class="headerTab" href="youtube.ejs">Youtube</button>
-                <button class="headerTab" href="spotify.ejs">Spotify</button>
-            </div>
+            <a href="/" id="logo">Jukebar</a>
+            <button class="tab" href="soundboard.ejs">Soundboard</button>
+            <button class="tab" href="youtube.ejs">Youtube</button>
+            <button class="tab" href="spotify.ejs">Spotify</button>
             <p id="version">Alpha v 1.0.0</p>
         </div>
 
-        <div id="tut">
-            <h1 class="headerText">Welcome, <%= username %>!</h1>
-            <h2>How to use Jukebar</h2>
-            <p class="desc">Jukebar is a Formbar plugin that allows users to play sounds. There are three ways you can
-                use
-                it:</p>
-            <div id="methodList">
-                <ul>
-                    <h3><a href="soundboard.ejs">Soundboard</a></h3>
-                    <p>Allows you to select sounds from a pre-approved list.</p>
-                </ul>
-                <ul>
-                    <h3><a href="youtube.ejs">YouTube</a></h3>
-                    <p>Allows you to play audio from a provided YouTube link.</p>
-                </ul>
-                <ul>
-                    <h3><a href="spotify.ejs">Spotify</a></h3>
-                    <p>Allows you to search for and play songs off of Spotify.</p>
-                </ul>
-            </div>
-            <p class="desc">Note that all sounds must be approved by a teacher before being added to the queue, and </p>
-            <p id="warning">explicit content is prohibited.</p>
-        </div>
-        <div id="queue">
-            <h2>Queue</h2>
-            <div id="queueList">
-                <ol>
-                    <li>Sound</li>
-                    <li>Sound</li>
-                    <li>Sound</li>
-                    <li>Sound</li>
-                    <li>Sound</li>
-                </ol>
+        <div id="content" class="contentBox">
+            <div id="tut">
+                <h1>Welcome, <%= username %>!</h1>
+                <h2>How to use Jukebar</h2>
+                <p class="desc">Jukebar is a Formbar plugin that allows users to play sounds. There are three ways you
+                    can use it:</p>
+                <div id="methodList">
+                    <a class="tab" href="soundboard.ejs">
+                        <h3>Soundboard</h3>
+                        <p>Allows you to select sounds from a pre-approved list.</p>
+                    </a>
+                    <a class="tab" href="youtube.ejs">
+                        <h3>YouTube</h3>
+                        <img src="/images/youtube-logos/yt_icon_white.png" alt="Youtube Logo" />
+                        <p>Allows you to play audio from a provided YouTube link.</p>
+                    </a>
+                    <a class="tab" href="spotify.ejs">
+                        <h3>Spotify</h3>
+                        <img src="/images/spotify-logos/sp_primary_logo_green.png" alt="Spotify Logo" />
+                        <p>Allows you to search for and play songs off of Spotify.</p>
+                    </a>
+                </div>
+                <p class="desc">Note that all sounds must be approved by a teacher before being added to the queue, and</p>
+                <p id="warning" class="desc">explicit content is prohibited.</p>
             </div>
 
-            <% } else { %>
-                <% res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login'); %>
-                    <% } %>
+            <div id="queue">
+                <h2>Queue</h2>
+                <div id="queueList">
+                    <ol>
+                        <li>Sound</li>
+                        <li>Sound</li>
+                        <li>Sound</li>
+                        <li>Sound</li>
+                        <li>Sound</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <% } else { %>
+            <% res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login'); %>
+                <% } %>
 </body>
+
+<script type="text/javascript">
+    const buttons = document.getElementsByTagName("button")
+
+    for (let button of buttons) {
+        button.onclick = function() {
+            window.location.href = button.getAttribute("href");
+        };
+    };
+</script>
 
 </html>
