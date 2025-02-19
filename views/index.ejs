@@ -10,7 +10,6 @@
 </head>
 
 <body>
-    <% if (username) { %>
         <div id="header">
             <a href="/" id="headerLogo">Jukebar</a>
             <div id="pageButtons">
@@ -22,7 +21,7 @@
         </div>
 
         <div id="tut">
-            <h1 class="headerText">Welcome, <%= username %>!</h1>
+            <h1 class="headerText">Welcome</h1>
             <h2>How to use Jukebar</h2>
             <p class="desc">Jukebar is a Formbar plugin that allows users to play sounds. There are three ways you can
                 use
@@ -55,10 +54,6 @@
                     <li>Sound</li>
                 </ol>
             </div>
-
-            <% } else { %>
-                <% res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login'); %>
-                    <% } %>
 </body>
 
 </html>

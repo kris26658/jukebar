@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soundboard</title>
 </head>
+
 <body>
     <h1>Soundboard</h1>
     <div id="soundboard">
@@ -15,11 +17,23 @@
         <button class="sound" id="curbyourenthusiasm">Curb your enthusiasm</button>
         <button class="sound" id="dukenukem">Duke nukem</button>
         <button class="sound" id="epicsaxguy">Epic sax guy</button>
-        <button class="sound" id="Final Fantasy Victory DGKS">Final Fantasy Victory</button>
-        <button class="sound" id="gangstaparadise">Gangsta paradise</button>
+        <button class="sound" id="FinalFantasyVictoryDGKS">Final Fantasy Victory</button>
+        <button class="sound" id="gangstasparadise">Gangsta paradise</button>
         <button class="sound" id="nogodpleaseno">No god please no</button>
     </div>
     <script>
+        let playSounds = true;
+        let userPermissions;
+        fetch('/getUserPermissions')
+            .then(response => response.json())
+            .then(data => {
+            userPermissions = data.permissions;
+            })
+            .catch(error => {
+            console.error('Error fetching user permissions:', error);
+            userPermissions = 0;
+            });
+        
         function playSound(src) {
             const audio = new Audio(src);
             audio.play();
@@ -29,10 +43,15 @@
             const sounds = document.querySelectorAll('.sound');
             sounds.forEach(sound => {
                 sound.addEventListener('click', () => {
-                    playSound(`/sfx/${sound.id}.mp3`);
+                    if (userPermissions >= 3 && playSounds) {
+                        playSound(`/sfx/${sound.id}.mp3`);
+                    } else {
+                        alert('You do not have permission to play sounds');
+                    }
                 });
             });
         }
     </script>
 </body>
+
 </html>
