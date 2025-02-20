@@ -10,45 +10,35 @@
 <body>
     <h1>Soundboard</h1>
     <div id="soundboard">
-        <button class="sound" id="rickroll">Rick roll</button>
-        <button class="sound" id="missionfailed">Mission failed</button>
-        <button class="sound" id="19dfnc">19 dollar Fortnite card</button>
-        <button class="sound" id="afewmomentslater">A few moments later</button>
-        <button class="sound" id="curbyourenthusiasm">Curb your enthusiasm</button>
-        <button class="sound" id="dukenukem">Duke nukem</button>
-        <button class="sound" id="epicsaxguy">Epic sax guy</button>
-        <button class="sound" id="FinalFantasyVictoryDGKS">Final Fantasy Victory</button>
-        <button class="sound" id="gangstasparadise">Gangsta paradise</button>
-        <button class="sound" id="nogodpleaseno">No god please no</button>
     </div>
     <script>
         let playSounds = true;
-        let userPermissions;
-        fetch('/getUserPermissions')
-            .then(response => response.json())
-            .then(data => {
-            userPermissions = data.permissions;
-            })
-            .catch(error => {
-            console.error('Error fetching user permissions:', error);
-            userPermissions = 0;
-            });
-        
+        let userPermissions = 5;
+        // fetch('/getUserPermissions')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         userPermissions = data.permissions;
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching user permissions:', error);
+        //         userPermissions = 0;
+        //     });
+
         function playSound(src) {
             const audio = new Audio(src);
             audio.play();
         }
 
         window.onload = () => {
-            const sounds = document.querySelectorAll('.sound');
-            sounds.forEach(sound => {
-                sound.addEventListener('click', () => {
+            // checks if the user has permission to play sounds
+            document.getElementById('soundboard').addEventListener('click', (event) => {
+                if (event.target && event.target.classList.contains('sound')) {
                     if (userPermissions >= 3 && playSounds) {
-                        playSound(`/sfx/${sound.id}.mp3`);
+                        playSound(`/sfx/${event.target.id}`);
                     } else {
                         alert('You do not have permission to play sounds');
                     }
-                });
+                }
             });
         }
     </script>

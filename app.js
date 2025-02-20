@@ -4,6 +4,8 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
+const fs = require('fs');
+
 
 const routes = require("./modules/routes.js");
 
