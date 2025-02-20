@@ -8,29 +8,10 @@ const index = (req, res) => {
         res.redirect(`https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login`);
     } else {
         try {
-            if (req.session.permissions < 5) {
-                res.render('index.ejs', { user: req.session.user });
-            } else if (req.session.permissions >= 5) {
-                res.render('teacher.ejs', { user: req.session.user });
-            }
+            res.render('index.ejs', { username: req.session.user });
         } catch (error) {
             res.send(error.message);
         }
-    }
-};
-
-const login = (req, res) => {
-    if (req.query.token) {
-        let tokenData = jwt.decode(req.query.token);
-        req.session.token = tokenData;
-        req.session.user = tokenData.username;
-        req.session.permissions = tokenData.permissions;
-        req.session.class = tokenData.class;
-        username = req.session.user;
-        classID = req.session.class;
-        res.redirect('/');
-    } else {
-        res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login');
     }
 };
 
@@ -44,7 +25,6 @@ const soundboard = (_, res) => {
 };
 
 router.get('/', index);
-router.get('/login', login);
 router.get('/logout', logout);
 router.get('/soundboard', soundboard);
 module.exports = router;
