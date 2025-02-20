@@ -8,7 +8,7 @@ const index = (req, res) => {
         res.redirect(`https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login`);
     } else {
         try {
-            res.render('index.ejs', { user: req.session.user });
+            res.render('index.ejs', { username: req.session.user });
         } catch (error) {
             res.send(error.message);
         }
