@@ -76,6 +76,12 @@
         <button class="sound" id="zawarudo">ZAWARUDO!</button>
         <button class="sound" id="falconpunch">Falcon Punch</button>
         <button class="sound" id="every60seconds">Every 60 seconds</button>
+        <button class="sound" id="getout">GET OUT</button>
+        <button class="sound" id="halotheme">Halo theme</button>
+        <button class="sound" id="loudindianmusic">Loud music</button>
+        <button class="sound" id="mariodeath">Mario dies</button>
+        <button class="sound" id="lowtaperfade">LOOOOW taper fade</button>
+        <button class="sound" id="lockedinninja">Locked in ninja</button>
     </div>
     <script>
         let playSounds = true;
@@ -99,8 +105,8 @@
             // checks if the user has permission to play sounds
             document.getElementById('soundboard').addEventListener('click', (event) => {
                 if (event.target && event.target.classList.contains('sound')) {
-                    if (userPermissions >= 3 && playSounds) {
-                        playSound(`/sfx/${event.target.id}`);
+                    if (userPermissions >= 2 && playSounds) {
+                        playSound(`/sfx/${event.target.id}.mp3`);
                     } else {
                         alert('You do not have permission to play sounds');
                     }
