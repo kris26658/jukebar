@@ -45,7 +45,7 @@ app.get('/login', (req, res) => {
             }
             if (!row) {
                 console.log("User not found in database, inserting...");
-                db.run('INSERT INTO users (username, displayName) VALUES (?, ?)', [username, displayName], (err) => {
+                db.run('INSERT INTO users (username) VALUES (?)', [username], (err) => {
                     if (err) {
                         console.error("Failed to insert user into database: ", err);
                     } else {
