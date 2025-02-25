@@ -5,12 +5,16 @@ const path = require("path");
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const fs = require('fs');
-
+const https = require('https');
+const http = require('http');
+const ytdl = require('ytdl-core');
+const ffmpeg = require('fluent-ffmpeg');
 
 const routes = require("./modules/routes.js");
 
 const app = express();
 const port = process.env.PORT || 3000;
+
 
 const db = new sqlite3.Database("db/database.db", (err) => {
     if (err) {
@@ -80,6 +84,22 @@ app.get('/getuserpermissions'), (req, res) => {
         res.status(401).send("Unauthorized");
     }
 };
+
+app.post('/youtube', async (req, res) => {
+    const url = req.body.url;
+    if (ytdl.validateURL(url)) {
+        const info = await ytdl.getInfo(url);
+        const format = ytdl.chooseFormat(info.formats, { quality: 'highest' });
+        res.header('Content-Disposition', `attachment; filename="${info.videoDetails.title}.mp4"`);
+        ytdl(url, { format: format }).pipe(res);
+    } else {
+        res.status(400).send('Invalid URL');
+    }
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'youtube.ejs'));
+});
 
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);
