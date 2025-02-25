@@ -15,8 +15,8 @@
             <h1>Spotify Player</h1>
             <div id="search">
                 <p>Search for a song to play:</p>
-                <input type="text" id="searchInput" placeholder="Song title">
-                <button onclick="search()" id="searchButton">Search</button>
+                <input type="text" id="searchBar" placeholder="Search for a song">
+                <button type="submit" class="searchButton" onclick="search()">Search</button>
 
                 <div id="searchResults">
                     search results
@@ -25,55 +25,85 @@
                 <button onclick="addSong()">Add to Queue</button>
             </div>
 
-        <div id="queue">
-            <h2>Queue</h2>
-            <div id="current">
-                <iframe id="playerFrame" src="https://open.spotify.com/embed/track/3n3Ppam7vgaVa1iaRUc9Lp" width="300"
-                    height="380" allowtransparency="true" frameborder="0" allow="encrypted-media"></iframe>
-                <div id="playerControls">
-                    <button id="play">Play</button>
-                    <button id="pause">Pause</button>
-                    <button id="next">Next</button>
-                    <button id="previous">Previous</button>
-                    <div id="volume">
-                        <input type="range" id="volumeControl" min="0" max="100" value="100">
+            <div id="queue">
+                <h2>Queue</h2>
+                <div id="current">
+                    <iframe id="playerFrame" src="https://open.spotify.com/embed/track/3n3Ppam7vgaVa1iaRUc9Lp"
+                        width="300" height="380" allowtransparency="true" frameborder="0"
+                        allow="encrypted-media"></iframe>
+                    <div id="playerControls">
+                        <button id="play">Play</button>
+                        <button id="pause">Pause</button>
+                        <button id="next">Next</button>
+                        <button id="previous">Previous</button>
+                        <div id="volume">
+                            <input type="range" id="volumeControl" min="0" max="100" value="100">
+                        </div>
                     </div>
                 </div>
+                <div id="next">
+                    <ol>
+                        <li>Next song</li>
+                        <li>Next song</li>
+                        <li>Next song</li>
+                        <li>Next song</li>
+                        <li>Next song</li>
+                    </ol>
+                </div>
             </div>
-            <div id="next">
-                <ol>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                </ol>
-            </div>
-        </div>
 
-        <%- include("partials/footer.ejs") %>
+            <%- include("partials/footer.ejs") %>
 
-            <script>
-                const searchInput = document.getElementById("searchInput");
-                const searchResults = document.getElementById("searchResults");
+                <script>
+                    const searchBar = document.getElementById("searchBar");
+                    const searchResults = document.getElementById("searchResults");
 
-                var queue = [];
+                    var queue = [];
 
-                function search() {
-                    fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
-                        headers: {
-                            "Authorization": "Bearer BQD5"
-                        }
-                    })
-                    searchInput.innerHTML = "";
-                }
+                    function search() {
+                        const query = document.getElementById('searchBar').value;
+                        if (!query) return alert("Please enter a song name.");
 
-                function addSong() {
-                    queue.push(searchResults);
-                    searchResults.innerHTML = "";
-                }
+                        fetch(`/search?q=${encodeURIComponent(query)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const resultsDiv = document.getElementById('current');
 
-            </script>
+                                if (data.error) {
+                                    resultsDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+                                } else {
+                                    resultsDiv.innerHTML = `
+                                <h3>${data.name}</h3>
+                                <p>Artist: ${data.artist}</p>
+                                <img src="${data.cover}" alt="Album Cover" width="200"><br>
+                                <button onclick="playSong('${data.uri}')" class='playback'>Play</button>
+                                <br>
+                                <button onclick="addToQueue('${data.uri}')">Add to Queue</button>
+                            `;
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Fetch Error:', err); // Log any fetch errors
+                                document.getElementById('current').innerHTML = "An error occurred while searching.";
+                            });
+                    }
+
+                    function addSong() {
+                        queue.push(searchResults);
+                        searchResults.innerHTML = "";
+                    }
+
+                    function playSong(uri) {
+                        const playerFrame = document.getElementById('playerFrame');
+                        playerFrame.src = `https://open.spotify.com/embed/track/${uri}`;
+                    }
+
+                    function addToQueue(uri) {
+                        queue.push(uri);
+                        alert("Song added to queue!");
+                    }
+
+                </script>
 </body>
 
 </html>

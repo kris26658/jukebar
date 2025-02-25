@@ -87,7 +87,7 @@ app.get('/login', (req, res) => {
 app.get('/spotifyLogin', (req, res) => {
     const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-public', 'playlist-modify-private', 'playlist-read-private', 'playlist-read-collaborative'];
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
-})
+});
 
 app.get('/callback', (req, res) => {
     const error = req.query.error;
@@ -108,7 +108,8 @@ app.get('/callback', (req, res) => {
         spotifyApi.setAccessToken(accessToken);
         spotifyApi.setRefreshToken(refreshToken);
 
-        console.log('Access Token:', accessToken, refreshToken);
+        console.log('Access Token:', accessToken);
+        console.log('Refresh Token:', refreshToken);
 
         // Send the user to the next page (adjust for your setup)
         res.redirect('/spotify');
@@ -131,9 +132,40 @@ app.get('/callback', (req, res) => {
     });
 });
 
-app.get('/spotify', (req, res) => {
-   res.render('spotify', { token: req.session.token }); 
+app.get('/search', (req, res) => {
+    const { q } = req.query;
+
+    // Validate the query parameter
+    if (!q || typeof q !== 'string' || q.trim().length === 0) {
+        return res.status(400).send('Bad Request: Missing or invalid query parameter');
+    }
+
+    // Check if the access token is set before making the search request
+    if (!spotifyApi.getAccessToken()) {
+        return res.status(401).send('Unauthorized: Access token missing or invalid');
+    }
+
+    spotifyApi.searchTracks(q)
+        .then(searchData => {
+            if (searchData.body.tracks.items.length > 0) {
+                const track = searchData.body.tracks.items[0]; // Grab the first track from the search results
+                const trackInfo = {
+                    name: track.name,
+                    artist: track.artists[0].name,
+                    uri: track.uri,
+                    cover: track.album.images[0].url, // Get the album cover URL
+                };
+                res.json(trackInfo);
+            } else {
+                res.status(404).json({ error: 'No tracks found' });
+            }
+        })
+        .catch(err => {
+            console.error('Error searching tracks:', JSON.stringify(err, null, 2)); // Log the full error
+            res.status(500).send(`Error: ${err.message}`); // Return detailed error message
+        });
 });
+
 
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);
