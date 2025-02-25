@@ -88,6 +88,12 @@ input {
 }
 
 /* IDs */
+
+#version {
+    color: var(--light-gray);
+    padding-left: 10px;
+}
+
 #colorContent {
     background-color: var(--bg-light);
 }
