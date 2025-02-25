@@ -24,7 +24,16 @@ const soundboard = (_, res) => {
     res.render('soundboard.ejs');
 };
 
+const youtube = (_, res) => {
+    res.render('youtube.ejs');
+};
+const spotify = (_, res) => {
+    res.render('spotify.ejs');
+};
+
 router.get('/', index);
 router.get('/logout', logout);
 router.get('/soundboard', soundboard);
+router.get('/youtube', youtube);
+router.get('/spotify', spotify);
 module.exports = router;

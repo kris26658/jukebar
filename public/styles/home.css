@@ -20,11 +20,6 @@ h3 {
 
 /* IDs */
 
-#version {
-    color: var(--light-gray);
-    padding-left: 10px;
-}
-
 #tut {
     margin-left: 80px;
 }
