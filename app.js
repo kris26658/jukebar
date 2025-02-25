@@ -41,7 +41,6 @@ app.use('/', routes);
 app.get('/login', (req, res) => {
     if (req.query.token) {
         let tokenData = jwt.decode(req.query.token);
-        req.session.token = tokenData;
         let username = tokenData.username;
         let permissions = tokenData.permissions;
         let classID = tokenData.classID;
