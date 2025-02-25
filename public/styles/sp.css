@@ -3,15 +3,21 @@
 
 /* IDs */
 
-#search {
-    margin: auto;
+#pageTitle {
+    display: block;
+}
+
+#requests {
     display: inline-block;
 }
 
 #queue {
     float: right;
-    margin: auto;
+    padding: 20px;
+    background-color: var(--bg-light-green);
 }
 
 /* Classes */
+
+
 
