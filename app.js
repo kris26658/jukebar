@@ -5,7 +5,14 @@ const path = require("path");
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const fs = require('fs');
+require('dotenv').config();
+const SpotifyWebApi = require('spotify-web-api-node');
 
+const spotifyApi = new SpotifyWebApi({
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    redirectUri: process.env.REDIRECT_URI,
+});
 
 const routes = require("./modules/routes.js");
 
@@ -37,6 +44,9 @@ app.get('/login', (req, res) => {
         req.session.token = tokenData;
         let username = tokenData.username;
         let permissions = tokenData.permissions;
+        let classID = tokenData.classID;
+        let className = tokenData.className;
+        let classPermissions = tokenData.classPermissions;
         db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
             if (err) {
                 console.error("Failed to query the database: ", err);
@@ -64,6 +74,8 @@ app.get('/login', (req, res) => {
             } else {
                 req.session.user = username;
                 req.session.permissions = permissions;
+                req.session.classID = classID;
+                req.session.className = className;
                 res.redirect('/');
             }
         });
@@ -73,13 +85,56 @@ app.get('/login', (req, res) => {
     }
 });
 
-app.get('/getuserpermissions'), (req, res) => {
-    if (req.session.permissions) {
-        res.send(req.session.permissions);
-    } else {
-        res.status(401).send("Unauthorized");
+app.get('/spotifyLogin', (req, res) => {
+    const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-public', 'playlist-modify-private', 'playlist-read-private', 'playlist-read-collaborative'];
+    res.redirect(spotifyApi.createAuthorizeURL(scopes));
+})
+
+app.get('/callback', (req, res) => {
+    const error = req.query.error;
+    const code = req.query.code;
+    const state = req.query.state;
+
+    if (error) {
+        console.error('Error:', error);
+        res.send(`Error: ${error}`);
+        return;
     }
-};
+    spotifyApi.authorizationCodeGrant(code).then(data => {
+        const accessToken = data.body['access_token'];
+        const refreshToken = data.body['refresh_token'];
+        const expiresIn = data.body['expires_in'];
+
+        // Set the access token and refresh token for the API calls
+        spotifyApi.setAccessToken(accessToken);
+        spotifyApi.setRefreshToken(refreshToken);
+
+        console.log('Access Token:', accessToken, refreshToken);
+
+        // Send the user to the next page (adjust for your setup)
+        res.redirect('/spotify');
+
+        // Handle token refresh in the background
+        setInterval(async () => {
+            try {
+                const data = await spotifyApi.refreshAccessToken();
+                const newAccessToken = data.body['access_token'];
+                spotifyApi.setAccessToken(newAccessToken);
+                console.log('Token refreshed:', newAccessToken); // Log the refreshed token if needed
+            } catch (err) {
+                console.error('Error refreshing access token:', err);
+            }
+        }, (expiresIn / 2) * 1000); // Refresh half the expiration time
+
+    }).catch(error => {
+        console.error('Error during authorization:', error);
+        res.status(500).send(`Error during authorization: ${error.message}`);
+    });
+});
+
+app.get('/spotify', (req, res) => {
+   res.render('spotify', { token: req.session.token }); 
+});
 
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);
