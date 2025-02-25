@@ -5,44 +5,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spotify Player</title>
+    <link rel="stylesheet" href="../styles/sp.css">
 </head>
 
-<body>
+<body id="colorContent">
     <%- include("partials/header.ejs") %>
 
-<script>
-    let playSounds = true;
-    let userPermissions = 5;
-    // fetch('/getUserPermissions')
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         userPermissions = data.permissions;
-    //     })
-    //     .catch(error => {
-    //         console.error('Error fetching user permissions:', error);
-    //         userPermissions = 0;
-    //     });
+        <div id="content" class="contentBox">
+            <h1>Spotify Player</h1>
+            <div id="search">
+                <p>Search for a song to play:</p>
+                <input type="text" id="searchInput" placeholder="Song title">
+                <button onclick="search()" id="searchButton">Search</button>
 
-    function playSound(src) {
-        const audio = new Audio(src);
-        audio.play();
-    }
+                <div id="searchResults">
+                    search results
+                </div>
 
-    window.onload = () => {
-        // checks if the user has permission to play sounds
-        document.getElementById('soundboard').addEventListener('click', (event) => {
-            if (event.target && event.target.classList.contains('sound')) {
-                if (userPermissions >= 2 && playSounds) {
-                    playSound(`/sfx/${event.target.id}.mp3`);
-                } else {
-                    alert('You do not have permission to play sounds');
+                <button onclick="addSong()">Add to Queue</button>
+            </div>
+
+        <div id="queue">
+            <h2>Queue</h2>
+            <div id="current">
+                <iframe id="playerFrame" src="https://open.spotify.com/embed/track/3n3Ppam7vgaVa1iaRUc9Lp" width="300"
+                    height="380" allowtransparency="true" frameborder="0" allow="encrypted-media"></iframe>
+                <div id="playerControls">
+                    <button id="play">Play</button>
+                    <button id="pause">Pause</button>
+                    <button id="next">Next</button>
+                    <button id="previous">Previous</button>
+                    <div id="volume">
+                        <input type="range" id="volumeControl" min="0" max="100" value="100">
+                    </div>
+                </div>
+            </div>
+            <div id="next">
+                <ol>
+                    <li>Next song</li>
+                    <li>Next song</li>
+                    <li>Next song</li>
+                    <li>Next song</li>
+                    <li>Next song</li>
+                </ol>
+            </div>
+        </div>
+
+        <%- include("partials/footer.ejs") %>
+
+            <script>
+                const searchInput = document.getElementById("searchInput");
+                const searchResults = document.getElementById("searchResults");
+
+                var queue = [];
+
+                function search() {
+                    fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
+                        headers: {
+                            "Authorization": "Bearer BQD5"
+                        }
+                    })
+                    searchInput.innerHTML = "";
                 }
-            }
-        });
-    }
 
-</script>
+                function addSong() {
+                    queue.push(searchResults);
+                    searchResults.innerHTML = "";
+                }
 
+            </script>
 </body>
 
 </html>
