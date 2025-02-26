@@ -24,9 +24,11 @@
                     <p>Search for a song to play:</p>
                     <input type="text" id="searchInput" placeholder="Song title">
                     <button onclick="search()" id="searchButton">Search</button>
-                    <iframe id="searchResults" frameBorder="0" allowtransparency="true" width="300" height="80"
-                        allow="encrypted-media">
-                    </iframe>
+                    <div id="searchResults">
+                        <iframe id="searchFrame" frameBorder="0" allowtransparency="true" width="300" height="80"
+                            allow="encrypted-media">
+                        </iframe>
+                    </div>
                     <button onclick="addReq()">Add to Requests</button>
                 </div>
 
@@ -74,45 +76,62 @@
             <%- include("partials/footer.ejs") %>
 
                 <script>
-                    const searchInput = document.getElementById("searchInput");
-                    const searchResults = document.getElementById("searchResults");
-                    const reqList = document.getElementById("reqList");
-                    const currentReq = document.getElementById("currentReq");
-                    var requests = [];
-                    var queue = [];
+                    let searchResults = document.getElementById("searchResults");
+                    let searchFrame = document.getElementById("searchFrame");
+                    let playerFrame = document.getElementById("playerFrame");
+                    let reqList = document.getElementById("reqList");
+                    let currentReq = document.getElementById("currentReq");
+                    let requests = [];
+                    let queue = [];
 
                     function search() {
+                        let searchInput = document.getElementById("searchInput");
                         trackData = fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
                             headers: {
                                 "Authorization": "Bearer BQD5"
                             }
                         })
-                        searchResults.setAttribute("src", trackData)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.tracks && data.tracks.items.length > 0) {
+                                    let trackData = data.tracks.items[0];
+                                    let trackUrl = `https://open.spotify.com/embed/track/${trackData.id}`;
+                                    searchFrame.setAttribute("src", trackUrl);
+                                } else {
+                                    searchResults.innerHTML = "No results found.";
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
                     }
 
                     function reqTracker() {
                         if (requests.length > 0) {
                             reqList.innerHTML = `There are ${requests.length} requests in review.`;
-                            currentReq.setAttribute("src", trackData) = requests[0];
+                            let trackUrl = requests[0];
+                            currentReq.setAttribute("src", trackUrl);
                         } else {
-                            reqList.innerHTML = "No requests yet.";
                             currentReq.innerHTML = "No requests pending review.";
                         }
                     }
 
                     function addReq() {
-                        requests.push(searchResults.trackData);
-                        reqTracker();
-                        searchResults.innerHTML = "";
+                        let trackUrl = searchResults.getAttribute("src")
+                        if (trackUrl) {
+                            requests.push(trackUrl);
+                            reqTracker();
+                            searchResults.setAttribute("src", "");
+                        } else {
+                            alert("No track selected. Please search for a track first.");
+                        }
                     }
 
-                    
-
                     function approveReq() {
-                        queue.push(requests[0]);
-                        requests.shift();
-                        requests.setAttribute("src", trackData)
-                        reqTracker();
+                        if (requests.length > 0) {
+                            let trackUrl = requests.shift();
+                            queue.push(trackUrl);
+                            playerFrame.setAttribute("src", queue[0]);
+                            reqTracker();
+                        }
                     }
 
                     function denyReq() {
