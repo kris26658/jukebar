@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Youtube Ripper</title>
 </head>
+
 <body>
     <h1>Youtube Ripper</h1>
-    
+
     <form id="youtube-form">
         <label for="url">Enter a youtube URL:</label>
         <input type="text" id="url" name="url">
@@ -20,13 +22,11 @@
         <ul id="video-list"></ul>
     </div>
 
-    </script>
+    <script>
         //submits the form and loads the video
 
-    <script>
-
         const form = document.getElementById('youtube-form');
-        form.addEventListener('submit', function(event) {
+        form.addEventListener('submit', function (event) {
             event.preventDefault();
             const urlInput = document.getElementById('url').value;
             const videoId = new URL(urlInput).searchParams.get('v');
@@ -73,4 +73,5 @@
         updateVideoList();
     </script>
 </body>
+
 </html>
