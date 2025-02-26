@@ -27,19 +27,14 @@ const soundboard = (_, res) => {
 const youtube = (_, res) => {
     res.render('youtube.ejs');
 };
-<<<<<<< Updated upstream
+
 const spotify = (_, res) => {
     res.render('spotify.ejs');
 };
-=======
->>>>>>> Stashed changes
 
 router.get('/', index);
 router.get('/logout', logout);
 router.get('/soundboard', soundboard);
 router.get('/youtube', youtube);
-<<<<<<< Updated upstream
 router.get('/spotify', spotify);
-=======
->>>>>>> Stashed changes
 module.exports = router;
