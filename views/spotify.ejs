@@ -8,72 +8,127 @@
     <link rel="stylesheet" href="../styles/sp.css">
 </head>
 
-<body id="colorContent">
+<body id="colorContent" onload="reqTracker()">
     <%- include("partials/header.ejs") %>
 
         <div id="content" class="contentBox">
-            <h1>Spotify Player</h1>
-            <div id="search">
-                <p>Search for a song to play:</p>
-                <input type="text" id="searchInput" placeholder="Song title">
-                <button onclick="search()" id="searchButton">Search</button>
-
-                <div id="searchResults">
-                    search results
-                </div>
-
-                <button onclick="addSong()">Add to Queue</button>
+            <div id="pageTitle">
+                <img class="fullLogo" src="/images/spotify-logos/sp_full_logo_green.png" alt="Spotify logo">
+                <h1>Spotify Player</h1>
             </div>
 
-        <div id="queue">
-            <h2>Queue</h2>
-            <div id="current">
-                <iframe id="playerFrame" src="https://open.spotify.com/embed/track/3n3Ppam7vgaVa1iaRUc9Lp" width="300"
-                    height="380" allowtransparency="true" frameborder="0" allow="encrypted-media"></iframe>
-                <div id="playerControls">
-                    <button id="play">Play</button>
-                    <button id="pause">Pause</button>
-                    <button id="next">Next</button>
-                    <button id="previous">Previous</button>
-                    <div id="volume">
-                        <input type="range" id="volumeControl" min="0" max="100" value="100">
+            <div id="requests">
+                <h2>Requests</h2>
+
+                <div id="search">
+                    <p>Search for a song to play:</p>
+                    <input type="text" id="searchInput" placeholder="Song title">
+                    <button onclick="search()" id="searchButton">Search</button>
+                    <iframe id="searchResults" frameBorder="0" allowtransparency="true" width="300" height="80"
+                        allow="encrypted-media">
+                    </iframe>
+                    <button onclick="addReq()">Add to Requests</button>
+                </div>
+
+                <p id="reqList"></p>
+            </div>
+
+            <div id="queue">
+                <h2>Queue</h2>
+
+                <div id="current">
+                    <iframe id="playerFrame" frameBorder="0" allowtransparency="true" width="300" height="380"
+                        allow="encrypted-media">
+                    </iframe>
+
+                    <div id="playerControls" class="teacherOnly">
+                        <button id="play">Play</button>
+                        <button id="pause">Pause</button>
+                        <button id="next">Next</button>
+                        <button id="previous">Previous</button>
+                        <div id="volume">
+                            <input type="range" id="volumeControl" min="0" max="100" value="100">
+                        </div>
                     </div>
                 </div>
+
+                <div id="upNext">
+                    <iframe id="searchResults" frameBorder="2" allowtransparency="true" width="300" height="80"
+                        allow="encrypted-media">
+                    </iframe>
+                </div>
+
             </div>
-            <div id="next">
-                <ol>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                    <li>Next song</li>
-                </ol>
+
+            <div id=incoming class="teacherOnly">
+                <h2>Incoming Requests</h2>
+
+                <div id="incoming">
+                    <p>Current Request:</p>
+                    <div id="currentReq"></div>
+                    <button id="approveReq">Approve</button>
+                    <button id="denyReq">Deny</button>
+                </div>
             </div>
-        </div>
 
-        <%- include("partials/footer.ejs") %>
+            <%- include("partials/footer.ejs") %>
 
-            <script>
-                const searchInput = document.getElementById("searchInput");
-                const searchResults = document.getElementById("searchResults");
+                <script>
+                    const searchInput = document.getElementById("searchInput");
+                    const searchResults = document.getElementById("searchResults");
+                    const reqList = document.getElementById("reqList");
+                    const currentReq = document.getElementById("currentReq");
+                    var requests = [];
+                    var queue = [];
 
-                var queue = [];
+                    function search() {
+                        trackData = fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
+                            headers: {
+                                "Authorization": "Bearer BQD5"
+                            }
+                        })
+                        searchResults.setAttribute("src", trackData)
+                    }
 
-                function search() {
-                    fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
-                        headers: {
-                            "Authorization": "Bearer BQD5"
+                    function reqTracker() {
+                        if (requests.length > 0) {
+                            reqList.innerHTML = `There are ${requests.length} requests in review.`;
+                            currentReq.setAttribute("src", trackData) = requests[0];
+                        } else {
+                            reqList.innerHTML = "No requests yet.";
+                            currentReq.innerHTML = "No requests pending review.";
                         }
-                    })
-                    searchInput.innerHTML = "";
-                }
+                    }
 
-                function addSong() {
-                    queue.push(searchResults);
-                    searchResults.innerHTML = "";
-                }
+                    function addReq() {
+                        requests.push(searchResults.trackData);
+                        reqTracker();
+                        searchResults.innerHTML = "";
+                    }
 
-            </script>
+                    
+
+                    function approveReq() {
+                        queue.push(requests[0]);
+                        requests.shift();
+                        requests.setAttribute("src", trackData)
+                        reqTracker();
+                    }
+
+                    function denyReq() {
+                        requests.shift();
+                        requests.setAttribute("src", trackData)
+                        reqTracker();
+                    }
+
+                    function currentSongLink() {
+                        if (queue.length > 0) {
+                            return queue[0];
+                        } else {
+                            return "No song currently playing.";
+                        }
+                    }
+                </script>
 </body>
 
 </html>
