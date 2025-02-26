@@ -24,11 +24,9 @@
                     <p>Search for a song to play:</p>
                     <input type="text" id="searchInput" placeholder="Song title">
                     <button onclick="search()" id="searchButton">Search</button>
-
-                    <div id="searchResults">
-                        search results
-                    </div>
-
+                    <iframe id="searchResults" frameBorder="0" allowtransparency="true" width="300" height="80"
+                        allow="encrypted-media">
+                    </iframe>
                     <button onclick="addReq()">Add to Requests</button>
                 </div>
 
@@ -39,10 +37,11 @@
                 <h2>Queue</h2>
 
                 <div id="current">
-                    <iframe id="playerFrame" src="https://open.spotify.com/embed/track/3n3Ppam7vgaVa1iaRUc9Lp"
-                        width="300" height="380" allowtransparency="true" frameborder="0"
-                        allow="encrypted-media"></iframe>
-                    <div id="playerControls">
+                    <iframe id="playerFrame" frameBorder="0" allowtransparency="true" width="300" height="380"
+                        allow="encrypted-media">
+                    </iframe>
+
+                    <div id="playerControls" class="teacherOnly">
                         <button id="play">Play</button>
                         <button id="pause">Pause</button>
                         <button id="next">Next</button>
@@ -54,18 +53,14 @@
                 </div>
 
                 <div id="upNext">
-                    <ol>
-                        <li>Next song</li>
-                        <li>Next song</li>
-                        <li>Next song</li>
-                        <li>Next song</li>
-                        <li>Next song</li>
-                    </ol>
+                    <iframe id="searchResults" frameBorder="2" allowtransparency="true" width="300" height="80"
+                        allow="encrypted-media">
+                    </iframe>
                 </div>
 
             </div>
 
-            <div id="teacherOnly">
+            <div id=incoming class="teacherOnly">
                 <h2>Incoming Requests</h2>
 
                 <div id="incoming">
@@ -82,24 +77,23 @@
                     const searchInput = document.getElementById("searchInput");
                     const searchResults = document.getElementById("searchResults");
                     const reqList = document.getElementById("reqList");
-
+                    const currentReq = document.getElementById("currentReq");
                     var requests = [];
                     var queue = [];
 
-
                     function search() {
-                        fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
+                        trackData = fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
                             headers: {
                                 "Authorization": "Bearer BQD5"
                             }
                         })
-                        searchInput.innerHTML = "";
+                        searchResults.setAttribute("src", trackData)
                     }
 
                     function reqTracker() {
                         if (requests.length > 0) {
                             reqList.innerHTML = `There are ${requests.length} requests in review.`;
-                            currentReq.innerHTML = requests[0];
+                            currentReq.setAttribute("src", trackData) = requests[0];
                         } else {
                             reqList.innerHTML = "No requests yet.";
                             currentReq.innerHTML = "No requests pending review.";
@@ -107,20 +101,32 @@
                     }
 
                     function addReq() {
-                        requests.push(searchResults);
+                        requests.push(searchResults.trackData);
                         reqTracker();
                         searchResults.innerHTML = "";
                     }
 
+                    
+
                     function approveReq() {
                         queue.push(requests[0]);
                         requests.shift();
+                        requests.setAttribute("src", trackData)
                         reqTracker();
                     }
 
                     function denyReq() {
                         requests.shift();
+                        requests.setAttribute("src", trackData)
                         reqTracker();
+                    }
+
+                    function currentSongLink() {
+                        if (queue.length > 0) {
+                            return queue[0];
+                        } else {
+                            return "No song currently playing.";
+                        }
                     }
                 </script>
 </body>
