@@ -3,15 +3,26 @@
 
 /* IDs */
 
-#search {
-    margin: auto;
+#pageTitle {
+    display: block;
+}
+
+#searchResults {
+    display: block;
+    margin: 5px;
+}
+
+#requests {
     display: inline-block;
 }
 
 #queue {
     float: right;
-    margin: auto;
+    padding: 20px;
+    background-color: var(--bg-light-green);
 }
 
 /* Classes */
+
+
 
