@@ -1,4 +1,4 @@
-const AUTH_URL = 'https://formbar.yorktechapps.com/oauth';
+const AUTH_URL = 'http://localhost:420/oauth';
 const THIS_URL = 'http://localhost:3000/login';
 
 function isAuthenticated(req, res, next) {
