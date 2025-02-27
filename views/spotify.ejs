@@ -75,11 +75,11 @@
                                     resultsDiv.innerHTML = `
                                 <h3>${data.name}</h3>
                                 <p>Artist: ${data.artist}</p>
-                                <img src="${data.cover}" alt="Album Cover" width="200"><br>
                                 <button onclick="playSong('${data.uri}')" class='playback'>Play</button>
                                 <br>
                                 <button onclick="addToQueue('${data.uri}')">Add to Queue</button>
                             `;
+                                    console.log(data.uri)
                                 }
                             })
                             .catch(err => {
@@ -94,8 +94,32 @@
                     }
 
                     function playSong(uri) {
-                        const playerFrame = document.getElementById('playerFrame');
-                        playerFrame.src = `https://open.spotify.com/embed/track/${uri}`;
+                        console.log("Attempting to play song with URI:", uri); // Debug log
+                        
+                        fetch('/play', {
+                            method: "POST",
+                            headers: { 
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ uri: uri })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => Promise.reject(err));
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                alert("Playing song: " + data.trackInfo.name);
+                            } else {
+                                alert("Error: " + (data.error || "Unknown error"));
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Fetch Error:', err);
+                            alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
+                        });
                     }
 
                     function addToQueue(uri) {
