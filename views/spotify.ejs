@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Player</title>
+    <link rel="stylesheet" href="../styles/sp.css">
+</head>
+
+<body id="colorContent" onload="reqTracker()">
+    <%- include("partials/header.ejs") %>
+
+        <div id="content" class="contentBox">
+            <div id="pageTitle">
+                <img class="fullLogo" src="/images/spotify-logos/sp_full_logo_green.png" alt="Spotify logo">
+                <h1>Spotify Player</h1>
+            </div>
+
+            <div id="requests">
+                <h2>Requests</h2>
+
+                <div id="search">
+                    <p>Search for a song to play:</p>
+                    <input type="text" id="searchInput" placeholder="Song title">
+                    <button onclick="search()" id="searchButton">Search</button>
+                    <div id="searchResults">
+                        <iframe id="searchFrame" frameBorder="0" allowtransparency="true" width="300" height="80"
+                            allow="encrypted-media">
+                        </iframe>
+                    </div>
+                    <button onclick="addReq()">Add to Requests</button>
+                </div>
+
+                <p id="reqList"></p>
+            </div>
+
+            <div id="queue">
+                <h2>Queue</h2>
+
+                <div id="current">
+                    <iframe id="playerFrame" frameBorder="0" allowtransparency="true" width="300" height="380"
+                        allow="encrypted-media">
+                    </iframe>
+
+                    <div id="playerControls" class="teacherOnly">
+                        <button id="play">Play</button>
+                        <button id="pause">Pause</button>
+                        <button id="next">Next</button>
+                        <button id="previous">Previous</button>
+                        <div id="volume">
+                            <input type="range" id="volumeControl" min="0" max="100" value="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="upNext">
+                    <iframe id="searchResults" frameBorder="2" allowtransparency="true" width="300" height="80"
+                        allow="encrypted-media">
+                    </iframe>
+                </div>
+
+            </div>
+
+            <div id=incoming class="teacherOnly">
+                <h2>Incoming Requests</h2>
+
+                <div id="incoming">
+                    <p>Current Request:</p>
+                    <div id="currentReq"></div>
+                    <button id="approveReq">Approve</button>
+                    <button id="denyReq">Deny</button>
+                </div>
+            </div>
+
+            <%- include("partials/footer.ejs") %>
+
+                <script>
+                    let searchResults = document.getElementById("searchResults");
+                    let searchFrame = document.getElementById("searchFrame");
+                    let playerFrame = document.getElementById("playerFrame");
+                    let reqList = document.getElementById("reqList");
+                    let currentReq = document.getElementById("currentReq");
+                    let teacherOnly = document.getElementsByClassName("teacherOnly");
+                    let requests = [];
+                    let queue = [];
+
+                    let userPermissions = 5;
+                    // fetch('/getUserPermissions')
+                    //     .then(response => response.json())
+                    //     .then(data => {
+                    //         userPermissions = data.permissions;
+                    //     })
+                    //     .catch(error => {
+                    //         console.error('Error fetching user permissions:', error);
+                    //         userPermissions = 0;
+                    //     });
+
+                    if (userPermissions == 5) {
+                        console.log(teacherOnly);
+                        for (let i = 0; i < teacherOnly.length; i++) {
+                            teacherOnly[i].style.display = "block";
+                        }
+                    } else {
+                        for (let i = 0; i < teacherOnly.length; i++) {
+                            teacherOnly[i].style.display = "none";
+                        }
+                    }
+
+                    function search() {
+                        let searchInput = document.getElementById("searchInput").value;
+                        trackData = fetch(`https://api.spotify.com/v1/search?q=${searchInput}&type=track`, {
+                            headers: {
+                                "Authorization": "Bearer BQD5"
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.tracks && data.tracks.items.length > 0) {
+                                    let trackData = data.tracks.items[0];
+                                    let trackUrl = `https://open.spotify.com/embed/track/${trackData.id}`;
+                                    searchFrame.setAttribute("src", trackUrl);
+                                } else {
+                                    searchResults.innerHTML = "No results found.";
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                    }
+
+                    function reqTracker() {
+                        if (requests.length > 0) {
+                            reqList.innerHTML = `There are ${requests.length} requests in review.`;
+                            let trackUrl = requests[0];
+                            currentReq.setAttribute("src", trackUrl);
+                        } else {
+                            currentReq.innerHTML = "No requests pending review.";
+                        }
+                    }
+
+                    function addReq() {
+                        let trackUrl = searchResults.getAttribute("src")
+                        if (trackUrl) {
+                            requests.push(trackUrl);
+                            reqTracker();
+                            searchResults.setAttribute("src", "");
+                        } else {
+                            alert("No track selected. Please search for a track first.");
+                        }
+                    }
+
+                    function approveReq() {
+                        if (requests.length > 0) {
+                            let trackUrl = requests.shift();
+                            queue.push(trackUrl);
+                            playerFrame.setAttribute("src", queue[0]);
+                            reqTracker();
+                        }
+                    }
+
+                    function denyReq() {
+                        requests.shift();
+                        requests.setAttribute("src", trackData)
+                        reqTracker();
+                    }
+
+                    function currentSongLink() {
+                        if (queue.length > 0) {
+                            return queue[0];
+                        } else {
+                            return "No song currently playing.";
+                        }
+                    }
+                </script>
+</body>
+
+</html>

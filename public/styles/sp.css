@@ -1,0 +1,28 @@
+/* Tags */
+
+
+/* IDs */
+
+#pageTitle {
+    display: block;
+}
+
+#searchResults {
+    display: block;
+    margin: 5px;
+}
+
+#requests {
+    display: inline-block;
+}
+
+#queue {
+    float: right;
+    padding: 20px;
+    background-color: var(--bg-light-green);
+}
+
+/* Classes */
+
+
+
