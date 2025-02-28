@@ -17,174 +17,132 @@
                 <p>Search for a song to play:</p>
                 <input type="text" id="searchBar" placeholder="Search for a song">
                 <button type="submit" class="searchButton" onclick="search()">Search</button>
+                <div id="queue">
+                    <h2>Queue</h2>
 
-                <div id="searchResults">
-                    search results
-                    <div id="pageTitle">
-                        <img class="fullLogo" src="/images/spotify-logos/sp_full_logo_green.png" alt="Spotify logo">
-                        <h1>Spotify Player</h1>
-                    </div>
+                    <div id="current">
+                        <p>Current Song:</p>
 
-                    <div id="requests">
-                        <h2>Requests</h2>
-
-                        <div id="search">
-                            <p>Search for a song to play:</p>
-                            <input type="text" id="searchInput" placeholder="Song title">
-                            <button onclick="search()" id="searchButton">Search</button>
-                            <iframe id="searchResults" frameBorder="0" allowtransparency="true" width="300" height="80"
-                                allow="encrypted-media">
-                            </iframe>
-                            <button onclick="addReq()">Add to Requests</button>
-                        </div>
-
-                        <p id="reqList"></p>
-                    </div>
-
-                    <div id="queue">
-                        <h2>Queue</h2>
-
-                        <div id="current">
-                            <iframe id="playerFrame" frameBorder="0" allowtransparency="true" width="300" height="380"
-                                allow="encrypted-media">
-                            </iframe>
-
-                            <div id="playerControls" class="teacherOnly">
-                                <button id="play">Play</button>
-                                <button id="pause">Pause</button>
-                                <button id="next">Next</button>
-                                <button id="previous">Previous</button>
-                                <div id="volume">
-                                    <input type="range" id="volumeControl" min="0" max="100" value="100">
-                                </div>
+                        <div id="playerControls" class="teacherOnly">
+                            <button id="play">Play</button>
+                            <button id="pause">Pause</button>
+                            <button id="next">Next</button>
+                            <button id="previous">Previous</button>
+                            <div id="volume">
+                                <input type="range" id="volumeControl" min="0" max="100" value="100">
                             </div>
                         </div>
-
-                        <div id="upNext">
-                            <div id="searchResults"></div>
-                            <!-- <iframe id="searchResults" frameBorder="2" allowtransparency="true" width="300" height="80"
-                        allow="encrypted-media">
-                    </iframe> -->
-                        </div>
-
                     </div>
 
-                    <div id=incoming class="teacherOnly">
-                        <h2>Incoming Requests</h2>
+                    <div id="searchResults"></div>
 
-                        <div id="incoming">
-                            <p>Current Request:</p>
-                            <div id="currentReq"></div>
-                            <button id="approveReq">Approve</button>
-                            <button id="denyReq">Deny</button>
-                        </div>
-                    </div>
 
-                    <%- include("partials/footer.ejs") %>
+                </div>
+                <%- include("partials/footer.ejs") %>
 
-                        <script>
-                            const searchInput = document.getElementById("searchInput");
-                            const searchResults = document.getElementById("searchResults");
-                            const reqList = document.getElementById("reqList");
-                            const currentReq = document.getElementById("currentReq");
-                            var requests = [];
-                            var queue = [];
+                    <script>
+                        const searchInput = document.getElementById("searchInput");
+                        const searchResults = document.getElementById("searchResults");
+                        const reqList = document.getElementById("reqList");
+                        const currentReq = document.getElementById("currentReq");
+                        var requests = [];
+                        var queue = [];
 
-                            function search() {
-                                const query = document.getElementById('searchBar').value;
-                                if (!query) return alert("Please enter a song name.");
+                        function search() {
+                            const query = document.getElementById('searchBar').value;
+                            if (!query) return alert("Please enter a song name.");
 
-                                fetch(`/search?q=${encodeURIComponent(query)}`)
-                                    .then(response => response.json())
-                                    .then(data => {
+                            fetch(`/search?q=${encodeURIComponent(query)}`)
+                                .then(response => response.json())
+                                .then(data => {
 
-                                        if (data.error) {
-                                            searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
-                                        } else {
-                                            searchResults.innerHTML = `
+                                    if (data.error) {
+                                        searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
+                                    } else {
+                                        searchResults.innerHTML = `
                                 <h3>${data.name}</h3>
                                 <p>Artist: ${data.artist}</p>
                                 <button onclick="playSong('${data.uri}')" class='playback'>Play</button>
                                 <br>
                                 <button onclick="addToQueue('${data.uri}')">Add to Queue</button>
                             `;
-                                            console.log(data.uri)
-                                        }
-                                    })
-                                    .catch(err => {
-                                        console.error('Fetch Error:', err); // Log any fetch errors
-                                        searchResults.innerHTML = "An error occurred while searching.";
-                                    });
-                            }
-
-                            function reqTracker() {
-                                if (requests.length > 0) {
-                                    reqList.innerHTML = `There are ${requests.length} requests in review.`;
-                                    currentReq.setAttribute("src", trackData) = requests[0];
-                                } else {
-                                    reqList.innerHTML = "No requests yet.";
-                                    currentReq.innerHTML = "No requests pending review.";
-                                }
-                            }
-
-                            function addReq() {
-                                requests.push(searchResults.trackData);
-                                reqTracker();
-                                searchResults.innerHTML = "";
-                            }
-
-
-
-                            function approveReq() {
-                                queue.push(requests[0]);
-                                requests.shift();
-                                requests.setAttribute("src", trackData)
-                                reqTracker();
-                            }
-
-                            function denyReq() {
-                                requests.shift();
-                                requests.setAttribute("src", trackData)
-                                reqTracker();
-                            }
-
-                            function currentSongLink() {
-                                if (queue.length > 0) {
-                                    return queue[0];
-                                } else {
-                                    return "No song currently playing.";
-                                }
-                            }
-
-                            function playSong(uri) {
-                                console.log("Attempting to play song with URI:", uri); // Debug log
-
-                                fetch('/play', {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({ uri: uri })
+                                        console.log(data.uri)
+                                    }
                                 })
-                                    .then(response => {
-                                        if (!response.ok) {
-                                            return response.json().then(err => Promise.reject(err));
-                                        }
-                                        return response.json();
-                                    })
-                                    .then(data => {
-                                        if (data.success) {
-                                            alert("Playing song: " + data.trackInfo.name);
-                                        } else {
-                                            alert("Error: " + (data.error || "Unknown error"));
-                                        }
-                                    })
-                                    .catch(err => {
-                                        console.error('Fetch Error:', err);
-                                        alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
-                                    });
+                                .catch(err => {
+                                    console.error('Fetch Error:', err); // Log any fetch errors
+                                    searchResults.innerHTML = "An error occurred while searching.";
+                                });
+                        }
+
+                        function reqTracker() {
+                            if (requests.length > 0) {
+                                reqList.innerHTML = `There are ${requests.length} requests in review.`;
+                                currentReq.setAttribute("src", trackData) = requests[0];
+                            } else {
+                                reqList.innerHTML = "No requests yet.";
+                                currentReq.innerHTML = "No requests pending review.";
                             }
-                        </script>
+                        }
+
+                        function addReq() {
+                            requests.push(searchResults.trackData);
+                            reqTracker();
+                            searchResults.innerHTML = "";
+                        }
+
+
+
+                        function approveReq() {
+                            queue.push(requests[0]);
+                            requests.shift();
+                            requests.setAttribute("src", trackData)
+                            reqTracker();
+                        }
+
+                        function denyReq() {
+                            requests.shift();
+                            requests.setAttribute("src", trackData)
+                            reqTracker();
+                        }
+
+                        function currentSongLink() {
+                            if (queue.length > 0) {
+                                return queue[0];
+                            } else {
+                                return "No song currently playing.";
+                            }
+                        }
+
+                        function playSong(uri) {
+                            console.log("Attempting to play song with URI:", uri); // Debug log
+
+                            fetch('/play', {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ uri: uri })
+                            })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        return response.json().then(err => Promise.reject(err));
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data.success) {
+                                        alert("Playing song: " + data.trackInfo.name);
+                                    } else {
+                                        alert("Error: " + (data.error || "Unknown error"));
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Fetch Error:', err);
+                                    alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
+                                });
+                        }
+                    </script>
 </body>
 
 </html>
