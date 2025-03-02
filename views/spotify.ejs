@@ -8,141 +8,81 @@
     <link rel="stylesheet" href="../styles/sp.css">
 </head>
 
-<body id="colorContent" onload="reqTracker()">
+<body id="colorContent">
     <%- include("partials/header.ejs") %>
 
-        <div id="content" class="contentBox">
-            <h1>Spotify Player</h1>
-            <div id="search">
-                <p>Search for a song to play:</p>
-                <input type="text" id="searchBar" placeholder="Search for a song">
-                <button type="submit" class="searchButton" onclick="search()">Search</button>
-                <div id="queue">
-                    <h2>Queue</h2>
+    <div id="content" class="contentBox">
+        <h1>Spotify Player</h1>
+        <div id="search">
+            <p>Search for a song to play:</p>
+            <input type="text" id="searchBar" placeholder="Search for a song">
+            <button type="submit" class="searchButton" onclick="search()">Search</button>
 
-                    <div id="current">
-                        <p>Current Song:</p>
+            <div id="current">
+                <p>Current Song:</p>
+            </div>
 
-                        <div id="playerControls" class="teacherOnly">
-                            <button id="play">Play</button>
-                            <button id="pause">Pause</button>
-                            <button id="next">Next</button>
-                            <button id="previous">Previous</button>
-                            <div id="volume">
-                                <input type="range" id="volumeControl" min="0" max="100" value="100">
-                            </div>
-                        </div>
-                    </div>
+            <div id="searchResults"></div>
+        </div>
+        
+        <%- include("partials/footer.ejs") %>
 
-                    <div id="searchResults"></div>
+        <script>
+            const searchResults = document.getElementById("searchResults");
 
+            function search() {
+                const query = document.getElementById('searchBar').value;
+                if (!query) return alert("Please enter a song name.");
 
-                </div>
-                <%- include("partials/footer.ejs") %>
-
-                    <script>
-                        const searchInput = document.getElementById("searchInput");
-                        const searchResults = document.getElementById("searchResults");
-                        const reqList = document.getElementById("reqList");
-                        const currentReq = document.getElementById("currentReq");
-                        var requests = [];
-                        var queue = [];
-
-                        function search() {
-                            const query = document.getElementById('searchBar').value;
-                            if (!query) return alert("Please enter a song name.");
-
-                            fetch(`/search?q=${encodeURIComponent(query)}`)
-                                .then(response => response.json())
-                                .then(data => {
-
-                                    if (data.error) {
-                                        searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
-                                    } else {
-                                        searchResults.innerHTML = `
+                fetch(`/search?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error === 'explicit') {
+                            alert('Only explicit versions of this song were found. Try searching for a clean version.');
+                            searchResults.innerHTML = '';
+                        } else if (data.error) {
+                            searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
+                        } else {
+                            searchResults.innerHTML = `
                                 <h3>${data.name}</h3>
+                                <img src="${data.album.largestImage}" alt="${data.album.name}" style="max-width: 200px; margin: 10px 0;">
                                 <p>Artist: ${data.artist}</p>
                                 <button onclick="playSong('${data.uri}')" class='playback'>Play</button>
-                                <br>
-                                <button onclick="addToQueue('${data.uri}')">Add to Queue</button>
                             `;
-                                        console.log(data.uri)
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error('Fetch Error:', err); // Log any fetch errors
-                                    searchResults.innerHTML = "An error occurred while searching.";
-                                });
                         }
+                    })
+                    .catch(err => {
+                        console.error('Fetch Error:', err);
+                        searchResults.innerHTML = "An error occurred while searching.";
+                    });
+            }
 
-                        function reqTracker() {
-                            if (requests.length > 0) {
-                                reqList.innerHTML = `There are ${requests.length} requests in review.`;
-                                currentReq.setAttribute("src", trackData) = requests[0];
-                            } else {
-                                reqList.innerHTML = "No requests yet.";
-                                currentReq.innerHTML = "No requests pending review.";
-                            }
+            function playSong(uri) {
+                console.log("Attempting to play song with URI:", uri);
+
+                fetch('/play', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ uri: uri })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error === 'explicit') {
+                            alert('This song contains explicit content and cannot be played.');
+                        } else if (data.success) {
+                            alert("Playing song: " + data.trackInfo.name);
+                        } else {
+                            alert("Error: " + (data.error || "Unknown error"));
                         }
-
-                        function addReq() {
-                            requests.push(searchResults.trackData);
-                            reqTracker();
-                            searchResults.innerHTML = "";
-                        }
-
-
-
-                        function approveReq() {
-                            queue.push(requests[0]);
-                            requests.shift();
-                            requests.setAttribute("src", trackData)
-                            reqTracker();
-                        }
-
-                        function denyReq() {
-                            requests.shift();
-                            requests.setAttribute("src", trackData)
-                            reqTracker();
-                        }
-
-                        function currentSongLink() {
-                            if (queue.length > 0) {
-                                return queue[0];
-                            } else {
-                                return "No song currently playing.";
-                            }
-                        }
-
-                        function playSong(uri) {
-                            console.log("Attempting to play song with URI:", uri); // Debug log
-
-                            fetch('/play', {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json"
-                                },
-                                body: JSON.stringify({ uri: uri })
-                            })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.json().then(err => Promise.reject(err));
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        alert("Playing song: " + data.trackInfo.name);
-                                    } else {
-                                        alert("Error: " + (data.error || "Unknown error"));
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error('Fetch Error:', err);
-                                    alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
-                                });
-                        }
-                    </script>
+                    })
+                    .catch(err => {
+                        console.error('Fetch Error:', err);
+                        alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
+                    });
+            }
+        </script>
 </body>
 
 </html>

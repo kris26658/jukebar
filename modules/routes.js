@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const { isAuthenticated, AUTH_URL, THIS_URL } = require('./authentication.js');
+const { spotifyApi, SPOTIFY_SCOPES } = require('./spotify/config');
+const { handleSpotifySearch, handlePlayTrack } = require('./spotify/handlers');
+const { findUser, insertUser } = require('./db/database');
+const { isAuthenticated } = require('./authentication');
 
-const index = (req, res) => {
+router.get('/', (req, res) => {
     if (!req.session.user) {
         res.redirect(`http://localhost:420/oauth?redirectURL=http://localhost:3000/login`);
     } else {
@@ -13,27 +15,22 @@ const index = (req, res) => {
             res.send(error.message);
         }
     }
-};
+});
 
-const logout = (req, res) => {
+router.get('/spotifyLogin', (_, res) => {
+    res.redirect(spotifyApi.createAuthorizeURL(SPOTIFY_SCOPES));
+});
+
+router.get('/search', handleSpotifySearch);
+router.post('/play', handlePlayTrack);
+
+router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
-};
+});
 
-const soundboard = (_, res) => {
-    res.render('soundboard.ejs');
-};
+router.get('/soundboard', (_, res) => res.render('soundboard.ejs'));
+router.get('/youtube', (_, res) => res.render('youtube.ejs'));
+router.get('/spotify', (_, res) => res.render('spotify.ejs'));
 
-const youtube = (_, res) => {
-    res.render('youtube.ejs');
-};
-const spotify = (_, res) => {
-    res.render('spotify.ejs');
-};
-
-router.get('/', index);
-router.get('/logout', logout);
-router.get('/soundboard', soundboard);
-router.get('/youtube', youtube);
-router.get('/spotify', spotify);
 module.exports = router;
