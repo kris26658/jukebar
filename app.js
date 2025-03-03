@@ -1,6 +1,5 @@
 const express = require("express");
 const ejs = require("ejs");
-const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
@@ -10,86 +9,66 @@ const http = require('http');
 const ytdl = require('ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 require('dotenv').config();
-const SpotifyWebApi = require('spotify-web-api-node');
 
-const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    redirectUri: process.env.REDIRECT_URI,
-});
+// Import modules
+const { db } = require('./modules/db/database');
+const { spotifyApi } = require('./modules/spotify/config');
+const routes = require("./modules/routes");
 
-const routes = require("./modules/routes.js");
-
+// Initialize express app
 const app = express();
 const port = process.env.PORT || 3000;
 
-
-const db = new sqlite3.Database("db/database.db", (err) => {
-    if (err) {
-        console.error("Failed to connect to the database: ", err);
-        process.exit(1); // exit the process
-    }
-});
-
+// Middleware configuration
 app.set("view engine", "ejs");
-
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Add this line to parse JSON request bodies
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(session({
-    secret: 'ThisIsTheSuperSigmerSecretKeyThatIsUsedToSignTheSessionIDNobodyWillEverGuessThisCauseItsSoLongAndImSigmaNowHeresARandomStringOfNumbersToMakeItEvenLonger123456789093784983749837498374987234987264928734629874629837612893746219873461298476123847962348976123487965213489762348972314875234987123648923714698123468231746198472364981723649812734698127346981723649',
+    secret: process.env.SESSION_SECRET || 'ThisIsTheSuperSigmerSecretKeyThatIsUsedToSignTheSessionIDNobodyWillEverGuessThisCauseItsSoLongAndImSigmaNowHeresARandomStringOfNumbersToMakeItEvenLonger123456789093784983749837498374987234987264928734629874629837612893746219873461298476123847962348976123487965213489762348972314875234987123648923714698123468231746198472364981723649812734698127346981723649',
     resave: false,
     saveUninitialized: false
 }));
 
+// Main routes
 app.use('/', routes);
 
-app.get('/login', (req, res) => {
+// Authentication routes
+app.get('/login', async (req, res) => {
     if (req.query.token) {
-        let tokenData = jwt.decode(req.query.token);
-        let username = tokenData.username;
-        let permissions = tokenData.permissions;
-        let classID = tokenData.classID;
-        let className = tokenData.className;
-        let classPermissions = tokenData.classPermissions;
-        db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
-            if (err) {
-                console.error("Failed to query the database: ", err);
-                res.status(500).send("Internal Server Error");
-                return;
-            }
-            if (!row) {
-                console.log("User not found in database, inserting...");
-                db.run('INSERT INTO users (username) VALUES (?)', [username], (err) => {
-                    if (err) {
-                        console.error("Failed to insert user into database: ", err);
-                    } else {
-                        db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions], (err) => {
-                            if (err) {
-                                console.error("Failed to insert user into classusers: ", err);
-                            } else {
-                                req.session.user = username;
-                                req.session.permissions = permissions;
-                                res.redirect('/');
-                                console.log("User inserted into database successfully!");
-                            }
-                        });
-                    }
-                });
-            } else {
+        try {
+            const tokenData = jwt.decode(req.query.token);
+            const { username, permissions, classID, className, classPermissions } = tokenData;
+
+            const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
+            
+            if (!user) {
+                await db.run('INSERT INTO users (username) VALUES (?)', [username]);
+                await db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions]);
+                
                 req.session.user = username;
                 req.session.permissions = permissions;
-                req.session.classID = classID;
-                req.session.className = className;
-                res.redirect('/');
+                console.log("User inserted into database successfully!");
+            } else {
+                Object.assign(req.session, {
+                    user: username,
+                    permissions,
+                    classID,
+                    className
+                });
             }
-        });
-
+            
+            res.redirect('/');
+        } catch (error) {
+            console.error("Database operation failed:", error);
+            res.status(500).send("Internal Server Error");
+        }
     } else {
         res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login');
     }
 });
 
+// Spotify authentication routes
 app.get('/spotifyLogin', (req, res) => {
     const scopes = [
         'user-read-private', 
@@ -107,140 +86,154 @@ app.get('/spotifyLogin', (req, res) => {
     res.redirect(spotifyApi.createAuthorizeURL(scopes));
 });
 
-app.get('/callback', (req, res) => {
-    const error = req.query.error;
-    const code = req.query.code;
-    const state = req.query.state;
+app.get('/callback', async (req, res) => {
+    const { error, code } = req.query;
 
     if (error) {
-        console.error('Error:', error);
-        res.send(`Error: ${error}`);
-        return;
+        console.error('Spotify Auth Error:', error);
+        return res.send(`Error: ${error}`);
     }
-    spotifyApi.authorizationCodeGrant(code).then(data => {
-        const accessToken = data.body['access_token'];
-        const refreshToken = data.body['refresh_token'];
-        const expiresIn = data.body['expires_in'];
 
-        // Set the access token and refresh token for the API calls
-        spotifyApi.setAccessToken(accessToken);
-        spotifyApi.setRefreshToken(refreshToken);
+    try {
+        const data = await spotifyApi.authorizationCodeGrant(code);
+        const { access_token, refresh_token, expires_in } = data.body;
 
-        console.log('Access Token:', accessToken);
-        console.log('Refresh Token:', refreshToken);
-
-        // Send the user to the next page (adjust for your setup)
-        res.redirect('/spotify');
+        spotifyApi.setAccessToken(access_token);
+        spotifyApi.setRefreshToken(refresh_token);
 
         // Handle token refresh in the background
         setInterval(async () => {
             try {
-                const data = await spotifyApi.refreshAccessToken();
-                const newAccessToken = data.body['access_token'];
-                spotifyApi.setAccessToken(newAccessToken);
-                console.log('Token refreshed:', newAccessToken); // Log the refreshed token if needed
+                const refreshData = await spotifyApi.refreshAccessToken();
+                spotifyApi.setAccessToken(refreshData.body.access_token);
+                console.log('Token refreshed successfully');
             } catch (err) {
                 console.error('Error refreshing access token:', err);
             }
-        }, (expiresIn / 2) * 1000); // Refresh half the expiration time
+        }, (expires_in / 2) * 1000);
 
-    }).catch(error => {
-        console.error('Error during authorization:', error);
+        res.redirect('/spotify');
+    } catch (error) {
+        console.error('Error during Spotify authorization:', error);
         res.status(500).send(`Error during authorization: ${error.message}`);
-    });
+    }
 });
 
-app.get('/search', (req, res) => {
+// Spotify API routes
+app.get('/search', async (req, res) => {
     const { q } = req.query;
 
-    // Validate the query parameter
-    if (!q || typeof q !== 'string' || q.trim().length === 0) {
+    if (!q?.trim()) {
         return res.status(400).send('Bad Request: Missing or invalid query parameter');
     }
 
-    // Check if the access token is set before making the search request
     if (!spotifyApi.getAccessToken()) {
         return res.status(401).send('Unauthorized: Access token missing or invalid');
     }
 
-    spotifyApi.searchTracks(q)
-        .then(searchData => {
-            if (searchData.body.tracks.items.length > 0) {
-                const track = searchData.body.tracks.items[0]; // Grab the first track from the search results
-                const trackInfo = {
-                    name: track.name,
-                    artist: track.artists[0].name,
-                    uri: track.uri,
-                };
-                res.json(trackInfo);
-            } else {
-                res.status(404).json({ error: 'No tracks found' });
+    try {
+        // First try searching specifically for clean/radio versions
+        let searchData = await spotifyApi.searchTracks(`${q} radio edit clean`, { limit: 50 });
+        let tracks = searchData.body.tracks.items.filter(track => !track.explicit);
+
+        // If no clean versions found, try the original search but still filter out explicit tracks
+        if (tracks.length === 0) {
+            searchData = await spotifyApi.searchTracks(q, { limit: 50 });
+            tracks = searchData.body.tracks.items.filter(track => !track.explicit);
+        }
+
+        if (tracks.length > 0) {
+            // Find a track that specifically mentions clean/radio edit
+            let track = tracks.find(track => {
+                const trackName = track.name.toLowerCase();
+                return trackName.includes('radio edit') ||
+                       trackName.includes('clean') ||
+                       trackName.includes('radio version') ||
+                       trackName.includes('clean version');
+            });
+
+            // If no specific clean version found, use the first non-explicit track
+            if (!track) {
+                track = tracks[0];
             }
-        })
-        .catch(err => {
-            console.error('Error searching tracks:', JSON.stringify(err, null, 2)); // Log the full error
-            res.status(500).send(`Error: ${err.message}`); // Return detailed error message
-        });
+
+            res.json({
+                name: track.name,
+                artist: track.artists[0].name,
+                uri: track.uri,
+                album: {
+                    name: track.album.name,
+                    images: track.album.images,
+                    smallestImage: track.album.images[track.album.images.length - 1].url,
+                    largestImage: track.album.images[0].url
+                }
+            });
+        } else {
+            res.json({
+                error: 'explicit',
+                message: 'Only explicit versions of this song were found'
+            });
+        }
+    } catch (err) {
+        console.error('Error searching tracks:', err);
+        res.status(500).send(`Error: ${err.message}`);
+    }
 });
 
-app.post('/play', (req, res) => {
+app.post('/play', async (req, res) => {
     const { uri } = req.body;
 
     if (!uri) {
         return res.status(400).json({ error: "Missing track URI" });
     }
 
-    // Check if the access token is set before making the request
     if (!spotifyApi.getAccessToken()) {
         return res.status(401).json({ error: "Unauthorized: Access token missing or invalid" });
     }
 
-    // Extract the track ID from the URI
     const trackIdPattern = /^spotify:track:([a-zA-Z0-9]{22})$/;
     const match = uri.match(trackIdPattern);
     if (!match) {
         return res.status(400).json({ error: 'Invalid track URI format' });
     }
-    const trackId = match[1];
 
-    // Get track details to include the track info in the response
-    spotifyApi.getTrack(trackId)
-        .then(trackData => {
-            const track = trackData.body;
-            const trackInfo = {
-                name: track.name,
-                artist: track.artists[0].name,
-                uri: track.uri,
-            };
+    try {
+        // Get track details first to check if it's explicit
+        const trackData = await spotifyApi.getTrack(match[1]);
+        
+        // Check if the track is explicit
+        if (trackData.body.explicit) {
+            return res.status(403).json({ 
+                error: "explicit",
+                message: "Cannot play explicit content" 
+            });
+        }
 
-            // Get the user's available devices
-            spotifyApi.getMyDevices()
-                .then(devicesData => {
-                    const devices = devicesData.body.devices;
-                    if (devices.length === 0) {
-                        return res.status(400).json({ error: "No available devices found" });
-                    }
+        const devicesData = await spotifyApi.getMyDevices();
+        const devices = devicesData.body.devices;
+        
+        if (devices.length === 0) {
+            return res.status(400).json({ error: "No available devices found" });
+        }
 
-                    // Play the track on the first available device
-                    const deviceId = devices[0].id;
-                    spotifyApi.play({ uris: [uri], device_id: deviceId })
-                        .then(() => {
-                            res.json({ success: true, message: "Playing track!", trackInfo });
-                        })
-                        .catch(err => {
-                            console.error('Error:', err);
-                            res.status(500).json({ error: "Playback failed, make sure Spotify is open" });
-                        });
-                })
-                .catch(err => {
-                    console.error('Error fetching devices:', err);
-                    res.status(500).json({ error: `Error: ${err.message}` });
-                });
-        })
-        .catch(err => {
-            console.error('Error fetching track details:', err);
-            res.status(500).json({ error: `Error: ${err.message}` });
+        await spotifyApi.play({ 
+            uris: [uri], 
+            device_id: devices[0].id 
         });
+
+        res.json({ 
+            success: true, 
+            message: "Playing track!", 
+            trackInfo: {
+                name: trackData.body.name,
+                artist: trackData.body.artists[0].name,
+                uri: trackData.body.uri,
+            }
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: "Playback failed, make sure Spotify is open" });
+    }
 });
 
 
@@ -260,6 +253,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'youtube.ejs'));
 });
 
+// Start server
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);
 });

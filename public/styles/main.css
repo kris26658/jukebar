@@ -45,7 +45,6 @@ body {
     padding: 8px;
     --theme-color: var(--color-green);
     transition: background-color 0.5s, color 0.5s;
-    overflow-y: scroll;
 }
 
 h1 {
@@ -177,3 +176,4 @@ input {
     position: relative;
     float: right;
 }
+
