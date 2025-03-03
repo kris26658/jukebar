@@ -5,6 +5,10 @@ const path = require("path");
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
 const fs = require('fs');
+const https = require('https');
+const http = require('http');
+const ytdl = require('ytdl-core');
+const ffmpeg = require('fluent-ffmpeg');
 
 
 const routes = require("./modules/routes.js");
