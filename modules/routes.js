@@ -28,17 +28,50 @@ router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
-router.get('/youtube', (req, res)=> {
+router.get('/youtube', (req, res) => {
     res.render('youtube.ejs');
 });
 
-const spotify = (_, res) => {
+router.get('/spotify', (req, res) => {
     res.render('spotify.ejs');
-};
+});
 
-router.get('/', index);
-router.get('/logout', logout);
-router.get('/soundboard', soundboard);
-router.get('/youtube', youtube);
-router.get('/spotify', spotify);
+router.get('/soundboard', (req, res) => {
+    res.render('soundboard.ejs');
+});
+
+router.get('/', (req, res) => {
+    if (!req.session.user) {
+        res.redirect(`http://localhost:420/oauth?redirectURL=http://localhost:3000/login`);
+    } else {
+        try {
+            res.render('index.ejs', { username: req.session.user });
+        } catch (error) {
+            res.send(error.message);
+        }
+    }
+});
+router.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
+router.get('/youtube', (req, res) => {
+    res.render('youtube.ejs');
+});
+router.get('/spotify', (req, res) => {
+    res.render('spotify.ejs');
+});
+
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
