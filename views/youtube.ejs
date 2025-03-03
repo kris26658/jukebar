@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,9 +30,15 @@
             event.preventDefault();
             const urlInput = document.getElementById('url').value;
             const videoId = new URL(urlInput).searchParams.get('v');
-            if (videoId) {
-                saveVideoId(videoId);
-                window.location.href = `?v=${videoId}`;
+            if (urlInput.includes
+                ('youtube.com')) {
+                const videoId = new URL(urlInput).searchParams.get('v');
+                if (videoId) {
+                    saveVideoId(videoId);
+                    window.location.href = `?v=${videoId}`;
+                }
+            } else {
+                alert('Please enter a valid youtube URL');
             }
         });
 
