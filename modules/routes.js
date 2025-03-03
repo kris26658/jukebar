@@ -27,6 +27,7 @@ const soundboard = (_, res) => {
 const youtube = (_, res) => {
     res.render('youtube.ejs');
 };
+
 const spotify = (_, res) => {
     res.render('spotify.ejs');
 };
