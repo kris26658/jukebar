@@ -12,6 +12,14 @@
     <%- include("partials/header.ejs") %>
 
         <div id="content" class="contentBox">
+            <h1>Spotify Player</h1>
+            <div id="search">
+                <p>Search for a song to play:</p>
+                <input type="text" id="searchBar" placeholder="Search for a song">
+                <button type="submit" class="searchButton" onclick="search()">Search</button>
+
+                <div id="searchResults">
+                    search results
             <div id="pageTitle">
                 <img class="fullLogo" src="/images/spotify-logos/sp_full_logo_green.png" alt="Spotify logo">
                 <h1>Spotify Player</h1>
