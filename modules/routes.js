@@ -28,9 +28,17 @@ router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
+router.get('/youtube', (req, res)=> {
+    res.render('youtube.ejs');
+});
 
-router.get('/soundboard', (_, res) => res.render('soundboard.ejs'));
-router.get('/youtube', (_, res) => res.render('youtube.ejs'));
-router.get('/spotify', (_, res) => res.render('spotify.ejs'));
+const spotify = (_, res) => {
+    res.render('spotify.ejs');
+};
 
+router.get('/', index);
+router.get('/logout', logout);
+router.get('/soundboard', soundboard);
+router.get('/youtube', youtube);
+router.get('/spotify', spotify);
 module.exports = router;

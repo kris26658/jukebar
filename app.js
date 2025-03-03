@@ -3,6 +3,11 @@ const ejs = require("ejs");
 const path = require("path");
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
+const ytdl = require('ytdl-core');
+const ffmpeg = require('fluent-ffmpeg');
 require('dotenv').config();
 
 // Import modules
@@ -229,6 +234,23 @@ app.post('/play', async (req, res) => {
         console.error('Error:', err);
         res.status(500).json({ error: "Playback failed, make sure Spotify is open" });
     }
+});
+
+
+app.post('/youtube', async (req, res) => {
+    const url = req.body.url;
+    if (ytdl.validateURL(url)) {
+        const info = await ytdl.getInfo(url);
+        const format = ytdl.chooseFormat(info.formats, { quality: 'highest' });
+        res.header('Content-Disposition', `attachment; filename="${info.videoDetails.title}.mp4"`);
+        ytdl(url, { format: format }).pipe(res);
+    } else {
+        res.status(400).send('Invalid URL');
+    }
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'youtube.ejs'));
 });
 
 // Start server
