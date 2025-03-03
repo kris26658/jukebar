@@ -1,58 +1,64 @@
-// Import required modules
+//to install required modules in the terminal: type "npm i express express-session ejs jsonwebtoken sqlite3 connect-sqlite3 socket.io path"
+
+//import external modules
 const express = require("express");
-const ejs = require("ejs");
-const sqlite3 = require("sqlite3").verbose();
+const session = require("express-session");
+const SQLiteStore = require("connect-sqlite3")(session); //create the "SQLiteStore" object from session
+const socketIO = require("socket.io");
 const path = require("path");
-const jwt = require('jsonwebtoken');
-const session = require('express-session');
 
-// Import custom modules
-const routes = require("./modules/routes.js");
-const { isAuthenticated, AUTH_URL, THIS_URL } = require("./modules/authentication.js");
+//import custom modules
+const routesMod = require("./modules/routes.js")
+const socketMod = require("./modules/socket.js")
 
-const app = express();
-const port = process.env.PORT || 3000;
+/*-----------
+Server Config
+-----------*/
 
-// Create a new database, set as the "db" object
-const db = new sqlite3.Database("db/database.db", (err) => {
-    if (err) {
-        console.error("Failed to connect to the database: ", err);
-        process.exit(1); // exit the process
-    }
+const app = express(); //initialize express, set as the "app" object
+const port = process.env.PORT || 3000; //set the port number
+
+//initialize the server, set as the "server" object
+const server = app.listen(port, () => {
+    console.log(`Server started at http://localhost:${port}`)
 });
 
-// Set view engine
-app.set("view engine", "ejs");
+const io = socketIO(server); //create the "io" object from the server
 
-// Use middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-app.use(session({
-    secret: 'make up a secret string here but never publish it!',
+//initiaize session, set as the "session_MIDDLEWARE" object
+const session_MIDDLEWARE = session({
+    store: new SQLiteStore,
+    secret: "key_secret",
     resave: false,
-    saveUninitialized: false
-}));
-
-app.get('/', isAuthenticated, (req, res) => {
-    try {
-        res.render('index.ejs', { user: req.session.user });
-    } catch (error) {
-        res.send(error.message);
-    }
+    saveUninitialized: true,
+    cookie: { secure: false }
 });
 
-app.get('/login', (req, res) => {
-    if (req.query.token) {
-        let tokenData = jwt.decode(req.query.token);
-        req.session.token = tokenData;
-        req.session.user = tokenData.username;
-        username = req.session.user;
-        res.redirect('/');
-    } else {
-        res.render('login.ejs', { AUTH_URL, THIS_URL });
-    }
+//create isAuthenticated function
+function isAuthenticated(req, res, next) {
+    if (req.session && req.session.user) next();
+    else res.redirect("/login");
+};
+
+app.set("view engine", "ejs"); //set ejs as the view engine
+app.use(session_MIDDLEWARE); //configure the server to use middleware
+app.use(express.urlencoded({ extended: true })); //encode url
+
+//configure the server to use routes from routes.js
+app.get("/", routesMod.index);
+app.get("/login", routesMod.loginGET);
+app.get("/logout", isAuthenticated, routesMod.logout);
+app.get("/chat", isAuthenticated, routesMod.chat);
+app.post("/login", routesMod.loginPOST);
+
+app.use(express.static(path.join(__dirname, "public"))); //configure use the static "public" folder for requests
+
+//configure the io object to use middleware
+io.use((socket, next) => {
+    session_MIDDLEWARE(socket.request, {}, next);
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port http://localhost:${port}`);
+//configure the io object to use connect from socket.js
+io.on("connection", (socket) => {
+    socketMod.socketHandler(socket, io);
 });
