@@ -5,7 +5,7 @@ const { isAuthenticated, AUTH_URL, THIS_URL } = require('./authentication.js');
 
 const index = (req, res) => {
     if (!req.session.user) {
-        res.redirect(`http://localhost:420/oauth?redirectURL=http://localhost:3000/login`);
+        res.redirect(`https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login`);
     } else {
         try {
             res.render('index.ejs', { username: req.session.user });
