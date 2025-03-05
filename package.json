@@ -4,7 +4,8 @@
   "description": "an extension for formbar that allows you to play music",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "setup": "node create-template.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

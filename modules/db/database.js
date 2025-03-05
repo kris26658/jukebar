@@ -1,44 +1,91 @@
-const sqlite3 = require("sqlite3").verbose();
+import sqlite3 from 'sqlite3';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const db = new sqlite3.Database("db/database.db", (err) => {
-    if (err) {
-        console.error("Failed to connect to the database: ", err);
-        process.exit(1);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+function initializeDatabase() {
+    try {
+        // Use absolute paths
+        const dbDir = path.resolve(process.cwd(), 'db');
+        const dbPath = path.join(dbDir, 'database.db');
+        const templatePath = path.join(dbDir, 'database-template.db');
+
+        console.log('Database directory path:', dbDir);
+        console.log('Database file path:', dbPath);
+        console.log('Template path:', templatePath);
+
+        // Create db directory with recursive option
+        if (!fs.existsSync(dbDir)) {
+            console.log('Creating database directory...');
+            fs.mkdirSync(dbDir, { recursive: true });
+        }
+
+        // Verify directory was created
+        if (!fs.existsSync(dbDir)) {
+            throw new Error(`Failed to create directory: ${dbDir}`);
+        }
+
+        // Check if database already exists
+        if (fs.existsSync(dbPath)) {
+            console.log('Using existing database at:', dbPath);
+            return new sqlite3.Database(dbPath);
+        }
+
+        // Verify template exists
+        if (!fs.existsSync(templatePath)) {
+            console.error('Template database not found at:', templatePath);
+            throw new Error('Database template not found. Please run create-template.js first.');
+        }
+
+        // Copy template to new database
+        console.log('Creating new database from template...');
+        fs.copyFileSync(templatePath, dbPath);
+        console.log('Database created successfully at:', dbPath);
+
+        return new sqlite3.Database(dbPath);
+    } catch (error) {
+        console.error('Error initializing database:', error);
+        throw error;
     }
-});
+}
 
-const insertUser = (username, permissions) => {
-    return new Promise((resolve, reject) => {
-        db.run('INSERT INTO users (username) VALUES (?)', [username], function(err) {
-            if (err) {
-                reject(err);
-                return;
-            }
-            db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions], function(err) {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve();
-            });
-        });
-    });
-};
+// Initialize database
+let database;
+try {
+    database = initializeDatabase();
+} catch (error) {
+    console.error('Fatal error initializing database:', error);
+    process.exit(1);
+}
 
-const findUser = (username) => {
+const dbGet = (query, params) => {
     return new Promise((resolve, reject) => {
-        db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
-            if (err) {
-                reject(err);
-                return;
-            }
+        database.get(query, params, (err, row) => {
+            if (err) return reject(err);
             resolve(row);
         });
     });
 };
 
-module.exports = {
-    db,
-    insertUser,
-    findUser
+const dbRun = (query, params) => {
+    return new Promise((resolve, reject) => {
+        database.run(query, params, function(err) {
+            if (err) return reject(err);
+            resolve(this.lastID);
+        });
+    });
 };
+
+const dbGetAll = (query, params) => {
+    return new Promise((resolve, reject) => {
+        database.all(query, params, (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows);
+        });
+    });
+};
+
+export { database, dbGet, dbRun, dbGetAll };
