@@ -10,6 +10,7 @@
 <body>
     <h1>Soundboard</h1>
     <div id="soundboard">
+        <!-- Add buttons for each sound effect -->
         <button class="sound" id="19dfnc">19 dollar Fortnite card</button>
         <button class="sound" id="afewmomentslater">A few moments later</button>
         <button class="sound" id="alarmclock">Alarm clock</button>
@@ -101,7 +102,7 @@
                 }
 
                 window.onload = () => {
-                    // checks if the user has permission to play sounds
+                    // checks if the user has permission to play sounds and plays the sound if they do
                     document.getElementById('soundboard').addEventListener('click', (event) => {
                         if (event.target && event.target.classList.contains('sound')) {
                             if (userPermissions >= 2 && playSounds) {
