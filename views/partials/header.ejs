@@ -5,6 +5,11 @@
     <button class="tab" href="/soundboard">Soundboard</button>
     <button class="tab" href="/youtube">Youtube</button>
     <button class="tab" href="/spotify">Spotify</button>
+    <button class="tab" onclick="logout()">Logout</button>
     <p id="version">Alpha v 1.0.0</p>
-    </div>
 </header>
+<script>
+    function logout() {
+        window.location.href = '/logout';
+    }
+</script>
