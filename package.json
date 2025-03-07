@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "an extension for formbar that allows you to play music",
   "main": "app.js",
+  "type": "commonjs",
   "scripts": {
     "setup": "node create-template.js",
     "start": "node app.js"

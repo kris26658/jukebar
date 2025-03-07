@@ -1,5 +1,5 @@
-import fs from 'fs';
-import { database, dbRun, dbGetAll } from '../modules/db/database.js';
+const fs = require('fs');
+const { database, dbRun, dbGetAll } = require('../modules/db/database.js');
 
 function getDatabaseVersion(db) {
     return new Promise((resolve, reject) => {
@@ -59,4 +59,6 @@ async function upgradeDatabase() {
     }
 }
 
-export { upgradeDatabase };
+module.exports = {
+    upgradeDatabase
+};

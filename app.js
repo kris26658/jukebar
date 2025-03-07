@@ -1,30 +1,23 @@
-import express from 'express';
-import ejs from 'ejs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import jwt from 'jsonwebtoken';
-import session from 'express-session';
-import fs from 'fs';
-import https from 'https';
-import http from 'http';
-import ytdl from 'ytdl-core';
-import ffmpeg from 'fluent-ffmpeg';
-import { upgradeDatabase } from './dataupgrader/dataUpgrader.js';
-import dotenv from 'dotenv';
-import { spotifyApi } from './modules/spotify/config.js';
-import routes from './modules/routes.js';
+const express = require("express");
+const ejs = require("ejs");
+const path = require("path");
+const jwt = require('jsonwebtoken');
+const session = require('express-session');
+const fs = require('fs');
+const https = require('https');
+const http = require('http');
+const ytdl = require('ytdl-core');
+const ffmpeg = require('fluent-ffmpeg');
+require('dotenv').config();
 
-// Configure __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Initialize dotenv
-dotenv.config();
+// Import modules
+const { db } = require('./modules/db/database');
+const { spotifyApi } = require('./modules/spotify/config');
+const routes = require("./modules/routes");
 
 // Initialize express app
 const app = express();
 const port = process.env.PORT || 3000;
-await upgradeDatabase();
 
 // Middleware configuration
 app.set("view engine", "ejs");
@@ -41,25 +34,48 @@ app.use(session({
 app.use('/', routes);
 
 // Authentication routes
-app.get('/login', (req, res) => {
+app.get('/login', async (req, res) => {
     if (req.query.token) {
-        let tokenData = jwt.decode(req.query.token);
-        req.session.token = tokenData;
-        req.session.user = tokenData.username;
-        res.redirect('/');
+        try {
+            const tokenData = jwt.decode(req.query.token);
+            const { username, permissions, classID, className, classPermissions } = tokenData;
+
+            const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
+            
+            if (!user) {
+                await db.run('INSERT INTO users (username) VALUES (?)', [username]);
+                await db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions]);
+                
+                req.session.user = username;
+                req.session.permissions = permissions;
+                console.log("User inserted into database successfully!");
+            } else {
+                Object.assign(req.session, {
+                    user: username,
+                    permissions,
+                    classID,
+                    className
+                });
+            }
+            
+            res.redirect('/');
+        } catch (error) {
+            console.error("Database operation failed:", error);
+            res.status(500).send("Internal Server Error");
+        }
     } else {
-        res.redirect(`${AUTH_URL}?redirectURL=${THIS_URL}`);
-    };
+        res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login');
+    }
 });
 
 // Spotify authentication routes
 app.get('/spotifyLogin', (req, res) => {
     const scopes = [
-        'user-read-private',
-        'user-read-email',
-        'playlist-modify-public',
-        'playlist-modify-private',
-        'playlist-read-private',
+        'user-read-private', 
+        'user-read-email', 
+        'playlist-modify-public', 
+        'playlist-modify-private', 
+        'playlist-read-private', 
         'playlist-read-collaborative',
         'user-read-playback-state',
         'user-modify-playback-state',
@@ -131,9 +147,9 @@ app.get('/search', async (req, res) => {
             let track = tracks.find(track => {
                 const trackName = track.name.toLowerCase();
                 return trackName.includes('radio edit') ||
-                    trackName.includes('clean') ||
-                    trackName.includes('radio version') ||
-                    trackName.includes('clean version');
+                       trackName.includes('clean') ||
+                       trackName.includes('radio version') ||
+                       trackName.includes('clean version');
             });
 
             // If no specific clean version found, use the first non-explicit track
@@ -184,30 +200,30 @@ app.post('/play', async (req, res) => {
     try {
         // Get track details first to check if it's explicit
         const trackData = await spotifyApi.getTrack(match[1]);
-
+        
         // Check if the track is explicit
         if (trackData.body.explicit) {
-            return res.status(403).json({
+            return res.status(403).json({ 
                 error: "explicit",
-                message: "Cannot play explicit content"
+                message: "Cannot play explicit content" 
             });
         }
 
         const devicesData = await spotifyApi.getMyDevices();
         const devices = devicesData.body.devices;
-
+        
         if (devices.length === 0) {
             return res.status(400).json({ error: "No available devices found" });
         }
 
-        await spotifyApi.play({
-            uris: [uri],
-            device_id: devices[0].id
+        await spotifyApi.play({ 
+            uris: [uri], 
+            device_id: devices[0].id 
         });
 
-        res.json({
-            success: true,
-            message: "Playing track!",
+        res.json({ 
+            success: true, 
+            message: "Playing track!", 
             trackInfo: {
                 name: trackData.body.name,
                 artist: trackData.body.artists[0].name,
