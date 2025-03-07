@@ -1,10 +1,7 @@
-import sqlite3 from 'sqlite3';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const sqlite3 = require('sqlite3');
+const fs = require('fs');
+const path = require('path');
+const { fileURLToPath } = require('url');
 
 function initializeDatabase() {
     try {
@@ -88,4 +85,4 @@ const dbGetAll = (query, params) => {
     });
 };
 
-export { database, dbGet, dbRun, dbGetAll };
+module.exports = { database, dbGet, dbRun, dbGetAll };
