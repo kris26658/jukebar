@@ -38,7 +38,7 @@ app.get('/login', async (req, res) => {
     if (req.query.token) {
         try {
             const tokenData = jwt.decode(req.query.token);
-            const { username, permissions, classId, className, classPermissions } = tokenData;
+            const { username, permissions, classID, className, classPermissions } = tokenData;
 
             const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
             
@@ -53,9 +53,8 @@ app.get('/login', async (req, res) => {
                 Object.assign(req.session, {
                     user: username,
                     permissions,
-                    classId,
-                    className,
-                    classPerms: permissions
+                    classID,
+                    className
                 });
             }
             
