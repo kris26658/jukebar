@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Isaia26633/jukebar.git"
+    "url": "git+https://github.com/csmith1188/jukebar.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Isaia26633/jukebar/issues"
+    "url": "https://github.com/csmith1188/jukebar/issues"
   },
-  "homepage": "https://github.com/Isaia26633/jukebar#readme",
+  "homepage": "https://github.com/csmith1188/jukebar",
   "dependencies": {
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
