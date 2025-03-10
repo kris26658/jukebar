@@ -85,4 +85,4 @@ const dbGetAll = (query, params) => {
     });
 };
 
-module.exports = { database, dbGet, dbRun, dbGetAll };
+module.exports = { db: database, dbGet, dbRun, dbGetAll };
