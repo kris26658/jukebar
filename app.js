@@ -1,64 +1,88 @@
-//to install required modules in the terminal: type "npm i express express-session ejs jsonwebtoken sqlite3 connect-sqlite3 socket.io path"
-
-//import external modules
 const express = require("express");
 const session = require("express-session");
 const SQLiteStore = require("connect-sqlite3")(session); //create the "SQLiteStore" object from session
 const socketIO = require("socket.io");
 const path = require("path");
+const jwt = require('jsonwebtoken');
+const session = require('express-session');
+const fs = require('fs');
 
-//import custom modules
-const routesMod = require("./modules/routes.js")
-const socketMod = require("./modules/socket.js")
+
+const routes = require("./modules/routes.js");
 
 /*-----------
 Server Config
 -----------*/
 
-const app = express(); //initialize express, set as the "app" object
-const port = process.env.PORT || 3000; //set the port number
-
-//initialize the server, set as the "server" object
-const server = app.listen(port, () => {
-    console.log(`Server started at http://localhost:${port}`)
+const db = new sqlite3.Database("db/database.db", (err) => {
+    if (err) {
+        console.error("Failed to connect to the database: ", err);
+        process.exit(1); // exit the process
+    }
 });
 
-const io = socketIO(server); //create the "io" object from the server
+app.set("view engine", "ejs");
 
-//initiaize session, set as the "session_MIDDLEWARE" object
-const session_MIDDLEWARE = session({
-    store: new SQLiteStore,
-    secret: "key_secret",
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(session({
+    secret: 'ThisIsTheSuperSigmerSecretKeyThatIsUsedToSignTheSessionIDNobodyWillEverGuessThisCauseItsSoLongAndImSigmaNowHeresARandomStringOfNumbersToMakeItEvenLonger123456789093784983749837498374987234987264928734629874629837612893746219873461298476123847962348976123487965213489762348972314875234987123648923714698123468231746198472364981723649812734698127346981723649',
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
+    saveUninitialized: false
+}));
+
+app.use('/', routes);
+
+app.get('/login', (req, res) => {
+    if (req.query.token) {
+        let tokenData = jwt.decode(req.query.token);
+        req.session.token = tokenData;
+        let username = tokenData.username;
+        let permissions = tokenData.permissions;
+        db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
+            if (err) {
+                console.error("Failed to query the database: ", err);
+                res.status(500).send("Internal Server Error");
+                return;
+            }
+            if (!row) {
+                console.log("User not found in database, inserting...");
+                db.run('INSERT INTO users (username) VALUES (?)', [username], (err) => {
+                    if (err) {
+                        console.error("Failed to insert user into database: ", err);
+                    } else {
+                        db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions], (err) => {
+                            if (err) {
+                                console.error("Failed to insert user into classusers: ", err);
+                            } else {
+                                req.session.user = username;
+                                req.session.permissions = permissions;
+                                res.redirect('/');
+                                console.log("User inserted into database successfully!");
+                            }
+                        });
+                    }
+                });
+            } else {
+                req.session.user = username;
+                req.session.permissions = permissions;
+                res.redirect('/');
+            }
+        });
+
+    } else {
+        res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login');
+    }
 });
 
-//create isAuthenticated function
-function isAuthenticated(req, res, next) {
-    if (req.session && req.session.user) next();
-    else res.redirect("/login");
+app.get('/getuserpermissions'), (req, res) => {
+    if (req.session.permissions) {
+        res.send(req.session.permissions);
+    } else {
+        res.status(401).send("Unauthorized");
+    }
 };
 
-app.set("view engine", "ejs"); //set ejs as the view engine
-app.use(session_MIDDLEWARE); //configure the server to use middleware
-app.use(express.urlencoded({ extended: true })); //encode url
-
-//configure the server to use routes from routes.js
-app.get("/", routesMod.index);
-app.get("/login", routesMod.loginGET);
-app.get("/logout", isAuthenticated, routesMod.logout);
-app.get("/chat", isAuthenticated, routesMod.chat);
-app.post("/login", routesMod.loginPOST);
-
-app.use(express.static(path.join(__dirname, "public"))); //configure use the static "public" folder for requests
-
-//configure the io object to use middleware
-io.use((socket, next) => {
-    session_MIDDLEWARE(socket.request, {}, next);
-});
-
-//configure the io object to use connect from socket.js
-io.on("connection", (socket) => {
-    socketMod.socketHandler(socket, io);
+app.listen(port, () => {
+    console.log(`Server running on port http://localhost:${port}`);
 });
