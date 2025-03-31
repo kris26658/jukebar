@@ -129,13 +129,13 @@
             window.onload = () => {
                 // checks if the user has permission to play sounds
                 document.getElementById('play').addEventListener('click', (event) => {
-                    if (event.target && event.target.classList.contains('sound')) {
-                        if (userPermissions >= 2 && playSounds) {
-                            playSound(`/sfx/${event.target.id}.mp3`);
-                        } else {
-                            alert('You do not have permission to play sounds');
-                        }
-                    }
+                    playSound(`/sfx/${event.target.id}.mp3`);
+                    // if (event.target && event.target.classList.contains('sound')) {
+                    //     if (userPermissions >= 2 && playSounds) {
+                    //     } else {
+                    //         alert('You do not have permission to play sounds');
+                    //     }
+                    // }
                 });
             }
         </script>
