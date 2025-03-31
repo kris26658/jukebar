@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
     } else {
         try {
             res.render('index.ejs', { username: req.session.user });
-            console.log(req.session.token);
+            // console.log(req.session.token);
         } catch (error) {
             console.error('Render Error:', error);
             res.status(500).send(error.message);

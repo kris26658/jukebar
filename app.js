@@ -48,7 +48,7 @@ app.get('/login', async (req, res) => {
                 
                 req.session.user = username;
                 req.session.permissions = permissions;
-                console.log("User inserted into database successfully!");
+                // console.log("User inserted into database successfully!");
             } else {
                 Object.assign(req.session, {
                     user: username,

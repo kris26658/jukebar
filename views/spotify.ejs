@@ -17,9 +17,10 @@
             <p>Search for a song to play:</p>
             <input type="text" id="searchBar" placeholder="Search for a song">
             <button type="submit" class="searchButton" onclick="search()">Search</button>
-
+            <br>
+            Current Song:
             <div id="current">
-                <p>Current Song:</p>
+                No currently playing songs.
             </div>
 
             <div id="searchResults"></div>
@@ -28,6 +29,7 @@
         <%- include("partials/footer.ejs") %>
 
         <script>
+            const current = document.getElementById("current")
             const searchResults = document.getElementById("searchResults");
 
             function search() {
@@ -73,6 +75,7 @@
                             alert('This song contains explicit content and cannot be played.');
                         } else if (data.success) {
                             alert("Playing song: " + data.trackInfo.name);
+                            current.innerHTML = (`${data.trackInfo.name} <br> ${data.trackInfo.artist}`) 
                         } else {
                             alert("Error: " + (data.error || "Unknown error"));
                         }
@@ -82,6 +85,7 @@
                         alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
                     });
             }
+
         </script>
 </body>
 
