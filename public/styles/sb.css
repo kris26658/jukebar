@@ -22,7 +22,7 @@
 
 #border {
     width: 600px;
-    height: 800px;
+    height: auto;
     margin: 0 auto;
     animation: gradient 10s infinite;
     background: linear-gradient(45deg, var(--color-cyan), var(--color-yellow), var(--color-pink), var(--color-cyan), var(--color-yellow), var(--color-pink), var(--color-cyan), var(--color-yellow), var(--color-pink));
@@ -32,10 +32,11 @@
 
 #wood {
     width: 500px;
-    height: 750px;
+    height: auto;
     margin: 45px auto;
     border-radius: 250px 250px 0 0;
     background-color: #643500;
+    display: flexbox;
 }
 
 #halfScreen {
