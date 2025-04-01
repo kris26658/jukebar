@@ -80,20 +80,6 @@ select {
     font-family: inherit;
 }
 
-#header button {
-    padding: 3px 6px;
-    border-radius: 8px;
-    font-size: inherit;
-    font-family: inherit;
-    background-color: var(--bg-light-green);
-    color: var(--theme-color);
-    border: 2px solid var(--theme-color);
-    margin: 2px 1px;
-    cursor: pointer;
-    transition-duration: 0.2s;
-    transition-property: transform, box-shadow;
-}
-
 /* IDs */
 
 #version {
@@ -106,13 +92,13 @@ select {
 }
 
 #content {
-	width: 1200px;
+    width: 1200px;
     margin: auto;
     margin-top: 100px;
-	padding: 100px 10px 10px;
-	background: white;
-	overflow: auto;
-	position: relative;
+    padding: 100px 10px 10px;
+    background: white;
+    overflow: auto;
+    position: relative;
 }
 
 #pageTitle {
@@ -166,20 +152,29 @@ select {
 
 #header .tab {
     padding: 12px 16px;
+    margin: 2px 1px;
     font-size: 21px;
+    font-family: inherit;
+    border: 2px solid var(--theme-color);
+    border-radius: 8px;
+    color: var(--theme-color);
+    background-color: var(--bg-light-green);
     cursor: pointer;
+    transition-duration: 0.2s;
+    transition-property: transform, box-shadow;
 }
 
-#header .tab:hover, #header .tab:focus {
+#header .tab:hover,
+#header .tab:focus {
     background-color: #00000055;
     color: white;
 }
 
 .contentBox {
-	border: solid 2px black;
-	border-radius: 10px;
-	padding: 20px !important;
-	font-size: 20px;
+    border: solid 2px black;
+    border-radius: 10px;
+    padding: 20px !important;
+    font-size: 20px;
 }
 
 .icon {
@@ -191,4 +186,3 @@ select {
     position: relative;
     float: right;
 }
-
