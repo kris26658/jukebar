@@ -13,24 +13,90 @@
 
         <div id="content" class="contentBox">
             <h1>Spotify Player</h1>
-            <div id="search">
-                <p>Search for a song to play:</p>
-                <input type="text" id="searchBar" placeholder="Search for a song">
-                <button type="submit" class="searchButton" onclick="search()">Search</button>
-                <br>
-                Current Song:
-                <div id="current">
-                    No currently playing songs.
+            <div class="container">
+                <!-- Left Column: Search -->
+                <div class="column">
+                    <div id="search">
+                        <p>Search for a song to play:</p>
+                        <input type="text" id="searchBar" placeholder="Search for a song">
+                        <button type="submit" class="searchButton" onclick="search()">Search</button>
+                    </div>
+                    <div id="searchResults"></div>
                 </div>
 
-                <div id="searchResults"></div>
+                <!-- Middle Column: Current Song -->
+                <div class="column">
+                    <div id="current">
+                        <h3>Current Song: </h3>
+                        <p>No currently playing songs.</p>
+                    </div>
+                </div>
+
+                <!-- Right Column: History and Queue -->
+                <div class="column">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="switchTab('history')">Recently Played</button>
+                        <button class="tab-button" onclick="switchTab('queue')">Queue</button>
+                    </div>
+                    
+                    <div id="history" class="tab-content active">
+                        <div id="historyList"></div>
+                    </div>
+                    
+                    <div id="queue" class="tab-content">
+                        <div id="queueList"></div>
+                    </div>
+                </div>
             </div>
+        </div>
 
             <%- include("partials/footer.ejs") %>
 
                 <script>
                     const current = document.getElementById("current")
                     const searchResults = document.getElementById("searchResults");
+
+                    function switchTab(tabName) {
+                        const tabs = document.querySelectorAll('.tab-content');
+                        const buttons = document.querySelectorAll('.tab-button');
+
+                        tabs.forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+
+                        buttons.forEach(button => {
+                            button.classList.remove('active');
+                        });
+
+                        document.getElementById(tabName).classList.add('active');
+                        document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+                    }
+
+                    // updates the history and queue lists every 500ms
+                    function updateHistoryAndQueue() {
+                        fetch('/history')
+                            .then(response => response.json())
+                            .then(data => {
+                                const historyList = document.getElementById("historyList");
+                                historyList.innerHTML = "<h3>Recently Played:</h3>";
+                                data.history.forEach(item => {
+                                    historyList.innerHTML += `<p>${item.name} by ${item.artist}</p>`;
+                                });
+                            })
+                            .catch(err => console.error('Error fetching history:', err));
+
+                        fetch('/queue')
+                            .then(response => response.json())
+                            .then(data => {
+                                const queueList = document.getElementById("queueList");
+                                queueList.innerHTML = "<h3>Queue:</h3>";
+                                //displays a numbered queue list of the songs in order
+                                data.queue.forEach((item, index) => {
+                                    queueList.innerHTML += `<p>${index + 1}. ${item.name} by ${item.artist}</p>`;
+                                });
+                            })
+                            .catch(err => console.error('Error fetching queue:', err));
+                    }
 
                     function search() {
                         const query = document.getElementById('searchBar').value;
@@ -49,7 +115,8 @@
                                 <h3>${data.name}</h3>
                                 <img src="${data.album.largestImage}" alt="${data.album.name}" style="max-width: 200px; margin: 10px 0;">
                                 <p>Artist: ${data.artist}</p>
-                                <button onclick="playSong('${data.uri}')" class='playback'>Play</button>
+                                <button onclick="playSong('${data.uri}')" class='playback'>Play</button> <br>
+                                <button onclick="addToQueue('${data.uri}')" class='playback'>Add to Queue</button>
                             `;
                                 }
                             })
@@ -75,7 +142,11 @@
                                     alert('This song contains explicit content and cannot be played.');
                                 } else if (data.success) {
                                     alert("Playing song: " + data.trackInfo.name);
-                                    current.innerHTML = (`<h3>${data.name}</h3> <img src="${data.album.largestImage}" alt="${data.album.name}" style="max-width: 200px; margin: 10px 0;"> <p>Artist: ${data.artist}</p>`)
+                                    current.innerHTML = `
+                                        <h3>Currently Playing:</h3>
+                                        <p>${data.trackInfo.name}</p>
+                                        <p>By ${data.trackInfo.artist}</p>
+                                    `;
                                 } else {
                                     alert("Error: " + (data.error || "Unknown error"));
                                 }
@@ -85,23 +156,60 @@
                                 alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
                             });
                     }
-                    
-                    document.addEventListener("DOMContentLoaded", function () {
-                        // Check if there's a currently playing song on page load
-                        fetch('/current')
+
+                    function addToQueue(uri) {
+                        fetch('/addToQueue', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ uri: uri })
+                        })
                             .then(response => response.json())
                             .then(data => {
-                                if (data.current) {
-                                    current.innerHTML = `${data.current.name} <br> ${data.current.artist}`;
+                                if (data.success) {
+                                    alert("Added to queue: " + data.name);
                                 } else {
-                                    current.innerHTML = "No currently playing songs.";
+                                    alert("Error: " + (data.error || "Unknown error"));
                                 }
                             })
                             .catch(err => {
                                 console.error('Fetch Error:', err);
-                                current.innerHTML = "Error fetching current song.";
+                                alert("Failed to add to queue: " + (err.error || err.message || "Unknown error"));
                             });
+                    }
+
+                    document.addEventListener("DOMContentLoaded", function () {
+                        let currentUri = null;
+
+                        function fectchCurrent() {
+                            fetch('/currentSong')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.uri !== currentUri) {
+                                        currentUri = data.uri;
+                                        if (data.name) {
+                                            current.innerHTML = `
+                                <h3>Currently Playing: </h3>
+                                <p>${data.name}</p>
+                                <p>By ${data.artist}</p>
+                                <img src="${data.cover}" alt="Album Cover" width="200">
+                            `;
+                                        } else {
+                                            current.innerHTML = "<p>No song currently playing</p>";
+                                        }
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error('Error fetching current song:', err);
+                                    document.getElementById('currentSong').innerHTML = "An error occurred while fetching the current song.";
+                                });
+                        }
+
+                        fectchCurrent();
+                        setInterval(fectchCurrent, 500);
                     });
+
                 </script>
 </body>
 

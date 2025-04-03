@@ -271,6 +271,41 @@ app.post('/play', async (req, res) => {
     }
 });
 
+app.post('/addToQueue', async (req, res) => {
+    const { uri } = req.body;
+
+    if (!uri) {
+        return res.status(400).json({ error: "Missing track URI" });
+    }
+
+    if (!spotifyApi.getAccessToken()) {
+        return res.status(401).json({ error: "Unauthorized: Access token missing or invalid" });
+    }
+
+    try {
+        const devicesData = await spotifyApi.getMyDevices();
+        const devices = devicesData.body.devices;
+
+        if (devices.length === 0) {
+            return res.status(400).json({ error: "No available devices found" });
+        }
+
+        await spotifyApi.addToQueue(uri, { device_id: devices[0].id });
+
+        res.json({
+            success: true,
+            message: "Track added to queue!",
+            trackInfo: {
+                uri: uri,
+                name: trackData.body.name,
+            }
+        });
+    } catch (err) {
+        console.error('Error:', err);
+        res.status(500).json({ error: "Failed to add track to queue" });
+    }
+});
+
 
 app.post('/youtube', async (req, res) => {
     const url = req.body.url;

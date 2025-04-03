@@ -28,8 +28,8 @@ button:hover {
 #search {
     display: flex;
     flex-direction: column;
-    max-width: 600px;
-    margin: 20px auto;
+    width: 100%;
+    margin: 0;
     align-items: center;
 }
 
@@ -40,13 +40,14 @@ button:hover {
 }
 
 #searchResults {
-    display: block;
-    margin: 15px auto;
+    margin: 15px 0;
     padding: 10px;
     text-align: center;
+    max-height: 600px;
+    overflow-y: auto;
 }
 
-#searchResults h3 {
+h3 {
     color: var(--theme-color);
     margin-bottom: 10px;
     text-align: center;
@@ -63,13 +64,13 @@ button:hover {
     padding: 20px;
     background-color: var(--bg-light-green);
     border-radius: 8px;
-    width: 300px;
-    margin: 20px auto;
+    width: 100%;
+    margin: 20px 0;
 }
 
 #current {
-    margin: 15px auto;
-    padding: 10px;
+    margin: 0;
+    padding: 20px;
     background-color: white;
     border-radius: 4px;
     text-align: center;
@@ -118,4 +119,109 @@ button:hover {
 body[data-permissions="teacher"] .teacherOnly {
     display: block;
     text-align: center;
+}
+
+/* Add new layout containers */
+.container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.column {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Add styles for the history list */
+.history-item, .queue-item {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: var(--bg-light-green);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.history-item img, .queue-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+}
+
+.song-info {
+    flex: 1;
+    text-align: left;
+}
+
+.song-info h4 {
+    margin: 0;
+    color: var(--theme-color);
+}
+
+.song-info p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+/* Tab styling */
+.tab-buttons {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 10px;
+    background-color: var(--bg-light-green);
+    border: 2px solid var(--theme-color);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--theme-color);
+    transition: all 0.2s ease;
+}
+
+.tab-button.active {
+    background-color: var(--theme-color);
+    color: white;
+}
+
+.tab-button:hover {
+    background-color: var(--theme-color);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    background-color: white;
+    border-radius: 0 0 8px 8px;
+    border: 2px solid var(--theme-color);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Update existing styles */
+#history, #queue {
+    margin: 0;
+    padding: 0;
+}
+
+#historyList, #queueList {
+    max-height: 500px;
+    overflow-y: auto;
 }
