@@ -10,7 +10,9 @@
 
 <body id="colorContent">
     <% if (username) { %>
-        <%- include("partials/header.ejs") %>
+        
+    <%- include("partials/header.ejs") %>
+
     <div id="content" class="contentBox">
         <div id="tut">
             <h1>Welcome, <%= username %>!</h1>
@@ -38,9 +40,10 @@
             <p id="warning" class="desc">explicit content is prohibited.</p>
         </div>
     <%- include("partials/footer.ejs") %>
-            <% } else { %>
-                <% res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login'); %>
-                    <% } %>
+
+    <% } else { %>
+        <% res.redirect('https://formbar.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login'); %>
+    <% } %>
 </body>
 
 <script type="text/javascript">
