@@ -55,6 +55,13 @@ try {
                 key TEXT
             )
         `);
+        
+        // Create spotify_queue table
+        db.run(`
+            CREATE TABLE IF NOT EXISTS spotify_queue (
+                uri TEXT PRIMARY KEY
+            )
+        `);
 
         // console.log('Template database created successfully');
     });

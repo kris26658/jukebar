@@ -14,203 +14,166 @@
         <div id="content" class="contentBox">
             <h1>Spotify Player</h1>
             <div class="container">
-                <!-- Left Column: Search -->
                 <div class="column">
                     <div id="search">
                         <p>Search for a song to play:</p>
-                        <input type="text" id="searchBar" placeholder="Search for a song">
-                        <button type="submit" class="searchButton" onclick="search()">Search</button>
+                        <div class="search-container">
+                            <input type="text" id="searchBar" placeholder="Search for a song">
+                            <button type="submit" class="searchButton" onclick="search()">Search</button>
+                        </div>
                     </div>
                     <div id="searchResults"></div>
                 </div>
-
-                <!-- Middle Column: Current Song -->
                 <div class="column">
                     <div id="current">
                         <h3>Current Song: </h3>
                         <p>No currently playing songs.</p>
                     </div>
                 </div>
-
-                <!-- Right Column: History and Queue -->
                 <div class="column">
-                    <div class="tab-buttons">
-                        <button class="tab-button active" onclick="switchTab('history')">Recently Played</button>
-                        <button class="tab-button" onclick="switchTab('queue')">Queue</button>
-                    </div>
-                    
-                    <div id="history" class="tab-content active">
-                        <div id="historyList"></div>
-                    </div>
-                    
-                    <div id="queue" class="tab-content">
-                        <div id="queueList"></div>
-                    </div>
+                    <h3>Queue</h3>
+                    <div id="queueList"></div>
                 </div>
             </div>
         </div>
 
-            <%- include("partials/footer.ejs") %>
+        <%- include("partials/footer.ejs") %>
 
-                <script>
-                    const current = document.getElementById("current")
-                    const searchResults = document.getElementById("searchResults");
+            <script>
+                const current = document.getElementById("current");
+                const searchResults = document.getElementById("searchResults");
+                const searchBar = document.getElementById("searchBar");
 
-                    function switchTab(tabName) {
-                        const tabs = document.querySelectorAll('.tab-content');
-                        const buttons = document.querySelectorAll('.tab-button');
-
-                        tabs.forEach(tab => {
-                            tab.classList.remove('active');
-                        });
-
-                        buttons.forEach(button => {
-                            button.classList.remove('active');
-                        });
-
-                        document.getElementById(tabName).classList.add('active');
-                        document.querySelector(`.tab-button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+                // Add enter key support for search
+                searchBar.addEventListener("keypress", function (event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        search();
                     }
+                });
 
-                    // updates the history and queue lists every 500ms
-                    function updateHistoryAndQueue() {
-                        fetch('/history')
-                            .then(response => response.json())
-                            .then(data => {
-                                const historyList = document.getElementById("historyList");
-                                historyList.innerHTML = "<h3>Recently Played:</h3>";
-                                data.history.forEach(item => {
-                                    historyList.innerHTML += `<p>${item.name} by ${item.artist}</p>`;
-                                });
-                            })
-                            .catch(err => console.error('Error fetching history:', err));
 
-                        fetch('/queue')
-                            .then(response => response.json())
-                            .then(data => {
-                                const queueList = document.getElementById("queueList");
-                                queueList.innerHTML = "<h3>Queue:</h3>";
-                                //displays a numbered queue list of the songs in order
-                                data.queue.forEach((item, index) => {
-                                    queueList.innerHTML += `<p>${index + 1}. ${item.name} by ${item.artist}</p>`;
-                                });
-                            })
-                            .catch(err => console.error('Error fetching queue:', err));
-                    }
+                // Start the queue update interval
+                // setInterval(updateQueue, 500);
 
-                    function search() {
-                        const query = document.getElementById('searchBar').value;
-                        if (!query) return alert("Please enter a song name.");
+                function search() {
+                    const query = document.getElementById('searchBar').value;
+                    if (!query) return alert("Please enter a song name.");
 
-                        fetch(`/search?q=${encodeURIComponent(query)}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.error === 'explicit') {
-                                    alert('Only explicit versions of this song were found. Try searching for a clean version.');
-                                    searchResults.innerHTML = '';
-                                } else if (data.error) {
-                                    searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
-                                } else {
-                                    searchResults.innerHTML = `
+                    fetch(`/search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === 'explicit') {
+                                alert('Only explicit versions of this song were found. Try searching for a clean version.');
+                                searchResults.innerHTML = '';
+                            } else if (data.error) {
+                                searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
+                            } else {
+                                searchResults.innerHTML = `
                                 <h3>${data.name}</h3>
                                 <img src="${data.album.largestImage}" alt="${data.album.name}" style="max-width: 200px; margin: 10px 0;">
                                 <p>Artist: ${data.artist}</p>
                                 <button onclick="playSong('${data.uri}')" class='playback'>Play</button> <br>
                                 <button onclick="addToQueue('${data.uri}')" class='playback'>Add to Queue</button>
                             `;
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Fetch Error:', err);
-                                searchResults.innerHTML = "An error occurred while searching.";
-                            });
-                    }
-
-                    function playSong(uri) {
-                        console.log("Attempting to play song with URI:", uri);
-
-                        fetch('/play', {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({ uri: uri })
+                            }
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.error === 'explicit') {
-                                    alert('This song contains explicit content and cannot be played.');
-                                } else if (data.success) {
-                                    alert("Playing song: " + data.trackInfo.name);
-                                    current.innerHTML = `
+                        .catch(err => {
+                            console.error('Fetch Error:', err);
+                            searchResults.innerHTML = "An error occurred while searching.";
+                        });
+                }
+
+                function playSong(uri) {
+                    console.log("Attempting to play song with URI:", uri);
+
+                    fetch('/play', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ uri: uri })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error === 'explicit') {
+                                alert('This song contains explicit content and cannot be played.');
+                            } else if (data.success) {
+                                alert("Playing song: " + data.trackInfo.name);
+                                current.innerHTML = `
                                         <h3>Currently Playing:</h3>
                                         <p>${data.trackInfo.name}</p>
                                         <p>By ${data.trackInfo.artist}</p>
                                     `;
-                                } else {
-                                    alert("Error: " + (data.error || "Unknown error"));
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Fetch Error:', err);
-                                alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
-                            });
-                    }
-
-                    function addToQueue(uri) {
-                        fetch('/addToQueue', {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({ uri: uri })
+                            } else {
+                                alert("Error: " + (data.error || "Unknown error"));
+                            }
                         })
+                        .catch(err => {
+                            console.error('Fetch Error:', err);
+                            alert("Failed to play song: " + (err.error || err.message || "Unknown error"));
+                        });
+                }
+
+                function addToQueue(uri) {
+                    fetch('/addToQueue', {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ uri: uri })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Added to queue: " + data.name);
+                        } else {
+                            alert("Error: " + (data.error || "Unknown error"));
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Fetch Error:', err);
+                        alert("Failed to add to queue: " + (err.error || err.message || "Unknown error"));
+                    });
+                }
+
+                // Remove the updateQueue function and interval since we're not managing our own queue anymore
+
+                document.addEventListener("DOMContentLoaded", function () {
+                    let currentUri = null;
+
+                    function fectchCurrent() {
+                        fetch('/currentSong')
                             .then(response => response.json())
                             .then(data => {
-                                if (data.success) {
-                                    alert("Added to queue: " + data.name);
-                                } else {
-                                    alert("Error: " + (data.error || "Unknown error"));
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Fetch Error:', err);
-                                alert("Failed to add to queue: " + (err.error || err.message || "Unknown error"));
-                            });
-                    }
-
-                    document.addEventListener("DOMContentLoaded", function () {
-                        let currentUri = null;
-
-                        function fectchCurrent() {
-                            fetch('/currentSong')
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.uri !== currentUri) {
-                                        currentUri = data.uri;
-                                        if (data.name) {
-                                            current.innerHTML = `
+                                if (data.uri !== currentUri) {
+                                    currentUri = data.uri;
+                                    if (data.name) {
+                                        current.innerHTML = `
                                 <h3>Currently Playing: </h3>
                                 <p>${data.name}</p>
                                 <p>By ${data.artist}</p>
                                 <img src="${data.cover}" alt="Album Cover" width="200">
                             `;
-                                        } else {
-                                            current.innerHTML = "<p>No song currently playing</p>";
-                                        }
+                                    } else {
+                                        current.innerHTML = "<p>No song currently playing</p>";
                                     }
-                                })
-                                .catch(err => {
-                                    console.error('Error fetching current song:', err);
-                                    document.getElementById('currentSong').innerHTML = "An error occurred while fetching the current song.";
-                                });
-                        }
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Error fetching current song:', err);
+                                document.getElementById('currentSong').innerHTML = "An error occurred while fetching the current song.";
+                            });
+                    }
 
-                        fectchCurrent();
-                        setInterval(fectchCurrent, 500);
-                    });
+                    fectchCurrent();
+                    setInterval(fectchCurrent, 500);
 
-                </script>
+                    // Update queue initially and every 5 seconds
+                    updateQueue();
+                    setInterval(updateQueue, 5000);
+                });
+            </script>
 </body>
 
 </html>

@@ -15,6 +15,7 @@ require('dotenv').config();
 const { db } = require('./modules/db/database');
 const { spotifyApi } = require('./modules/spotify/config');
 const routes = require("./modules/routes");
+const { addToSpotifyQueue, getQueuedSongs, removeSongFromQueue } = require('./modules/spotify/queue');
 
 // Initialize express app
 const app = express();
@@ -256,6 +257,8 @@ app.post('/play', async (req, res) => {
             device_id: devices[0].id
         });
 
+        await removeSongFromQueue(uri);
+
         res.json({
             success: true,
             message: "Playing track!",
@@ -283,22 +286,21 @@ app.post('/addToQueue', async (req, res) => {
     }
 
     try {
-        const devicesData = await spotifyApi.getMyDevices();
-        const devices = devicesData.body.devices;
-
-        if (devices.length === 0) {
-            return res.status(400).json({ error: "No available devices found" });
+        const trackIdPattern = /^spotify:track:([a-zA-Z0-9]{22})$/;
+        const match = uri.match(trackIdPattern);
+        if (!match) {
+            return res.status(400).json({ error: 'Invalid track URI format' });
         }
 
-        await spotifyApi.addToQueue(uri, { device_id: devices[0].id });
+        const trackData = await spotifyApi.getTrack(match[1]);
+        
+        await spotifyApi.addToQueue(uri);
 
         res.json({
             success: true,
             message: "Track added to queue!",
-            trackInfo: {
-                uri: uri,
-                name: trackData.body.name,
-            }
+            name: trackData.body.name,
+            artist: trackData.body.artists[0].name
         });
     } catch (err) {
         console.error('Error:', err);
@@ -306,6 +308,37 @@ app.post('/addToQueue', async (req, res) => {
     }
 });
 
+app.get('/queue', async (req, res) => {
+    if (!spotifyApi.getAccessToken()) {
+        return res.status(401).json({ error: "Unauthorized: Access token missing or invalid" });
+    }
+
+    try {
+        const queuedSongs = await getQueuedSongs(100);
+
+        // If the queue is empty, return an empty array
+        if (!queuedSongs || queuedSongs.length === 0) {
+            return res.json([]); // Return an empty array to indicate no songs in the queue
+        }
+
+        const trackInfoPromises = queuedSongs.map(async (song) => {
+            const trackId = song.uri.split(':')[2]; // Extract ID from spotify:track:ID
+            const trackData = await spotifyApi.getTrack(trackId);
+            return {
+                name: trackData.body.name,
+                artist: trackData.body.artists[0].name,
+                uri: trackData.body.uri,
+                albumImage: trackData.body.album.images[trackData.body.album.images.length - 1]?.url
+            };
+        });
+
+        const queueItems = await Promise.all(trackInfoPromises);
+        res.json(queueItems);
+    } catch (err) {
+        console.error('Error fetching queue:', err);
+        res.status(500).json({ error: "Failed to fetch queue" });
+    }
+});
 
 app.post('/youtube', async (req, res) => {
     const url = req.body.url;
