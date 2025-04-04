@@ -1,60 +1,15 @@
 <link rel="stylesheet" href="../styles/main.css">
-<link id="lmdm" rel="stylesheet" href="../styles/themes/lightmode.css">
-<link rel="icon" href="images/favicon.png">
 
 <header id="header">
     <a href="/" id="logo">Jukebar</a>
-    <a class="tab" href="/soundboard">Soundboard</a>
-    <a class="tab" href="/youtube">Youtube</a>
-    <a class="tab" href="/spotify">Spotify</a>
+    <button class="tab" href="/soundboard">Soundboard</button>
+    <button class="tab" href="/youtube">Youtube</button>
+    <button class="tab" href="/spotify">Spotify</button>
     <button class="tab" onclick="logout()">Logout</button>
-    <p id="version">Alpha v 0.1</p>
-    <button onclick="toggleTheme()" id="lmdmBtn">
-        <img id="lmdmIcon" src="images/sun.svg">
-    </button>
+    <p id="version">Alpha v 1.0.0</p>
 </header>
 <script>
     function logout() {
         window.location.href = '/logout';
-    }
-
-    //imported from formbar.js, edited to work with jukebar
-    const lmdmIcon = document.getElementById('lmdmIcon'); // Define the lmdmIcon variable
-
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) {
-            return parts.pop().split(';').shift();
-        }
-        return null; // Return null if the cookie is not found
-    }
-        // Check if lmdmIcon exists before modifying it
-        if (lmdmIcon) {
-            // Check the theme cookie and update the stylesheet and icon accordingly
-            if (getCookie("theme") === "white") {
-                document.getElementById('lmdm').href = 'styles/themes/lightmode.css';
-                lmdmIcon.src = "images/moon.svg";
-            } else if (getCookie("theme") === "dark") {
-                document.getElementById('lmdm').href = 'styles/themes/darkmode.css';
-                lmdmIcon.src = "images/sun.svg";
-            }
-        } else {
-            console.error("Element with id 'lmdmIcon' does not exist in the DOM.");
-        }
-
-    var nextYear = new Date().getFullYear() + 1;
-
-    function toggleTheme() {
-        let theme = getCookie("theme");
-        if (theme == "white") {
-            document.cookie = "theme=dark;expires=Fri, 1 Jul " + nextYear + " 23:59:59 GMT";
-            document.getElementById('lmdm').href = 'styles/themes/darkmode.css';
-            lmdmIcon.src = "images/sun.svg"
-        } else {
-            document.cookie = "theme=white;expires=Fri, 1 Jul " + nextYear + " 23:59:59 GMT";
-            document.getElementById('lmdm').href = 'styles/themes/lightmode.css';
-            lmdmIcon.src = "images/moon.svg"
-        }
     }
 </script>
