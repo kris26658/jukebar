@@ -356,6 +356,39 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'youtube.ejs'));
 });
 
+app.post('/preview', async (req, res) => {
+    const { uri } = req.body;
+
+    if (!uri) {
+        return res.status(400).json({ error: "Missing track URI" });
+    }
+
+    try {
+        const trackId = uri.split(':')[2];  // Get ID from spotify:track:ID format
+        const response = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+            headers: {
+                'Authorization': `Bearer ${spotifyApi.getAccessToken()}`
+            }
+        });
+        
+        const trackData = await response.json();
+        const previewUrl = trackData.preview_url;
+        
+        if (!previewUrl) {
+            return res.status(404).json({ error: "No preview available for this track" });
+        }
+
+        res.json({
+            success: true,
+            previewUrl: previewUrl,
+            name: trackData.name
+        });
+    } catch (err) {
+        console.error('Error getting preview:', err);
+        res.status(500).json({ error: "Failed to get track preview" });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`);

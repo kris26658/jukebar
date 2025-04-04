@@ -57,32 +57,46 @@
                 fetch(`/search?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
+                        console.log('Search results:', data); // Add this debug log
                         if (data.error === 'explicit') {
                             alert('Only explicit versions of this song were found. Try searching for a clean version.');
                             searchResults.innerHTML = '';
                         } else if (data.error) {
                             searchResults.innerHTML = `<p>Error: ${data.error}</p>`;
                         } else {
+                            // Make sure we're getting the correct URI here
+                            console.log('Track URI for preview:', data.uri);
                             searchResults.innerHTML = `
                                 <h3>${data.name}</h3>
                                 <img src="${data.album.largestImage}" alt="${data.album.name}" style="max-width: 200px; margin: 10px 0;">
                                 <p>Artist: ${data.artist}</p>
                                 <button onclick="playSong('${data.uri}')" class='playback'>Play</button> <br>
-                                <button onclick="addToQueue('${data.uri}')" class='playback'>Add to Queue</button>
+                                <button onclick="addToQueue('${data.uri}')" class='playback'>Add to Queue</button> <br>
+                                <button onclick="preview('${data.uri}')" class='playback'>Preview</button>
                             `;
                         }
                     })
+                    .catch(err => {
+                        console.error('Search Error:', err);
+                    });
+            }
+
+            function playSong(uri) {
+                console.log("Attempting to play song with URI:", uri);
+
+                fetch('/play', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ uri: uri })
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.error === 'explicit') {
                             alert('This song contains explicit content and cannot be played.');
                         } else if (data.success) {
                             alert("Playing song: " + data.trackInfo.name);
-                            current.innerHTML = `
-                                        <h3>Currently Playing:</h3>
-                                        <p>${data.trackInfo.name}</p>
-                                        <p>By ${data.trackInfo.artist}</p>
-                                    `;
                         } else {
                             alert("Error: " + (data.error || "Unknown error"));
                         }
@@ -113,6 +127,58 @@
                         console.error('Fetch Error:', err);
                         alert("Failed to add to queue: " + (err.error || err.message || "Unknown error"));
                     });
+            }
+
+            let currentPreview = null;
+
+            function preview(uri) {
+                // Stop any currently playing preview
+                if (currentPreview) {
+                    currentPreview.pause();
+                    currentPreview = null;
+                    const buttons = document.querySelectorAll('button[onclick^="preview"]');
+                    buttons.forEach(btn => btn.textContent = "Preview");
+                    return;
+                }
+
+                fetch('/preview', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ uri: uri })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.previewUrl) {
+                        currentPreview = new Audio(data.previewUrl);
+                        currentPreview.play()
+                            .then(() => {
+                                const previewButton = document.querySelector(`button[onclick="preview('${uri}')"]`);
+                                if (previewButton) {
+                                    previewButton.textContent = "◼ Stop Preview";
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Preview playback error:', err);
+                                alert("Failed to play preview");
+                            });
+
+                        currentPreview.onended = () => {
+                            const previewButton = document.querySelector(`button[onclick="preview('${uri}')"]`);
+                            if (previewButton) {
+                                previewButton.textContent = "Preview";
+                            }
+                            currentPreview = null;
+                        };
+                    } else {
+                        alert("No preview available for this track");
+                    }
+                })
+                .catch(err => {
+                    console.error('Preview Error:', err);
+                    alert("Failed to get preview");
+                });
             }
 
             // Remove the updateQueue function and interval since we're not managing our own queue anymore
