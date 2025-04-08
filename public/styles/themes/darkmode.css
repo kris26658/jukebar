@@ -12,11 +12,6 @@ h6 {
 	color: var(--color-white);
 }
 
-h1.headertext,
-h2.headertext {
-	color: var(--light-cyan);
-}
-
 p {
 	color: var(--color-white);
 }
@@ -26,19 +21,9 @@ input {
 	color: #ffffff;
 }
 
-#select {
-	background-color: #323232;
-	color: #ffffff;
-}
-
 #colorContent {
 	background-color: #323232;
 	color: #ffffff;
-}
-
-#content {
-	background-color: var(#ffffff);
-	color: #000000;
 }
 
 #content .tab {

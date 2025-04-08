@@ -120,6 +120,7 @@ button {
     background: white;
     overflow: auto;
     position: relative;
+    color: black;
 }
 
 #pageTitle {

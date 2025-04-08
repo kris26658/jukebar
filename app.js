@@ -68,6 +68,18 @@ app.get('/login', async (req, res) => {
     }
 });
 
+// Logout route
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            return res.status(500).send('Logout failed');
+        }
+        console.log('Redirecting to oauth server');
+        res.redirect('http://localhost:420/oauth?redirectURL=http://localhost:3000/login');
+    });
+});
+
 // Spotify authentication routes
 app.get('/spotifyLogin', (req, res) => {
     const scopes = [
