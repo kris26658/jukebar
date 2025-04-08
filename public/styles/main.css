@@ -62,13 +62,6 @@ a {
     text-decoration: none;
 }
 
-a.tab {
-    padding: 12px 16px;
-    font-size: 21px;
-    cursor: pointer;
-    color: white;
-}
-
 p {
     margin: 8px 0;
 }
@@ -87,7 +80,7 @@ select {
     font-family: inherit;
 }
 
-button {
+#header button {
     padding: 3px 6px;
     border-radius: 8px;
     font-size: inherit;
@@ -113,14 +106,13 @@ button {
 }
 
 #content {
-    width: 1200px;
-    margin: auto;
-    margin-top: 100px;
-    padding: 100px 10px 10px;
-    background: white;
-    overflow: auto;
-    position: relative;
-    color: black;
+	width: 1200px;
+  margin: auto;
+  margin-top: 100px;
+	padding: 100px 10px 10px;
+	background: white;
+	overflow: auto;
+	position: relative;
 }
 
 #pageTitle {
@@ -170,55 +162,24 @@ button {
     cursor: pointer;
 }
 
-#lmdmBtn {
-    position: fixed;
-    right: 20px;
-    margin-top: 0.75vh;
-    border-radius: 100%;
-    width: 45px;
-    height: 45px;
-}
-
-#lmdmIcon {
-    position: absolute;
-    left: 20%;
-    top: 22%;
-    width: 25px;
-    height: 25px;
-}
-
 /* Classes */
 
 #header .tab {
     padding: 12px 16px;
     font-size: 21px;
     cursor: pointer;
-    /*
-    padding: 12px 16px;
-    margin: 2px 1px;
-    font-size: 21px;
-    font-family: inherit;
-    border: 2px solid var(--theme-color);
-    border-radius: 8px;
-    color: var(--theme-color);
-    background-color: var(--bg-light-green);
-    cursor: pointer;
-    transition-duration: 0.2s;
-    transition-property: transform, box-shadow;
-    */
 }
 
-#header .tab:hover,
-#header .tab:focus {
+#header .tab:hover, #header .tab:focus {
     background-color: #00000055;
     color: white;
 }
 
 .contentBox {
-    border: solid 2px black;
-    border-radius: 10px;
-    padding: 20px !important;
-    font-size: 20px;
+	border: solid 2px black;
+	border-radius: 10px;
+	padding: 20px !important;
+	font-size: 20px;
 }
 
 .icon {
@@ -231,21 +192,3 @@ button {
     float: right;
 }
 
-/*Pop-out effect*/
-:is(button):where(:hover, :focus-visible) {
-	transform: translate(3px, -3px);
-	box-shadow: -1.5px 1.5px color-mix(in hsl, var(--theme-color) 70%, hsl(0, 0%, 0%) 30%), -3px 3px color-mix(in hsl, var(--theme-color) 70%, hsl(0, 0%, 0%) 30%);
-}
-
-:is(button):active {
-	background: var(--theme-color);
-	color: white;
-	transform: none !important;
-	box-shadow: none !important;
-}
-
-/*Shows that the button is currently active*/
-button.pressed {
-	background-color: var(--theme-color);
-	color: white;
-}
