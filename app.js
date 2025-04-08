@@ -76,7 +76,7 @@ app.get('/logout', (req, res) => {
             return res.status(500).send('Logout failed');
         }
         console.log('Redirecting to oauth server');
-        res.redirect('http://localhost:420/oauth?redirectURL=http://localhost:3000/login');
+        res.redirect('http://formbeta.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login');
     });
 });
 
