@@ -52,7 +52,7 @@ async function upgradeDatabase() {
         // Update the database version
         await dbRun('CREATE TABLE IF NOT EXISTS "stats" (key TEXT NOT NULL, value TEXT)');
         await dbRun('INSERT OR REPLACE INTO stats (key, value) VALUES ("dbVersion", ?)', [currentVersion]);
-        console.log(`Database upgraded to version ${currentVersion}`);
+        // console.log(`Database upgraded to version ${currentVersion}`);
     } catch (error) {
         console.error('Error upgrading database:', error);
         throw error;
