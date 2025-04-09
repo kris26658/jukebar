@@ -219,12 +219,12 @@ button {
 }
 
 /*Pop-out effect*/
-:is(button):where(:hover, :focus-visible) {
+:is(button):where(:hover, :focus-visible):not(.sound, .arrow){
 	transform: translate(3px, -3px);
 	box-shadow: -1.5px 1.5px color-mix(in hsl, var(--theme-color) 70%, hsl(0, 0%, 0%) 30%), -3px 3px color-mix(in hsl, var(--theme-color) 70%, hsl(0, 0%, 0%) 30%);
 }
 
-:is(button):active {
+:is(button):active:not(.sound, .arrow) {
 	background: var(--theme-color);
 	color: white;
 	transform: none !important;

@@ -56,35 +56,40 @@
     background-color: var(--color-silver);
 }
 
-
 #bottomLine {
     display: inline-flex;
 }
 
-#soundSelect {
-    width: 419px;
-    margin: 5px auto;
-}
-
-#searchbar {
-    width: 314px;
-    cursor: text;
-}
-
 #border2 {
     width: 350px;
-    height: 350px;
-    margin: auto;
+    height: 300px;
+    margin: auto auto 10px auto;
     background-image: linear-gradient(45deg, var(--color-cyan), var(--color-yellow), var(--color-pink));
     border-radius: 0 0 300px 300px;
 }
 
 #speaker {
     width: 300px;
-    height: 300px;
+    height: 250px;
     margin: 20px auto;
     background-color: var(--bg-darker);
     border-radius: 0 0 300px 300px;
+}
+
+#pagination-controls {
+    display: flex;
+    float: right;
+    float: bottom;
+}
+
+#nextPage {
+    transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+}
+
+#prevPage {
+    transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
 }
 
 /* Classes */
@@ -94,26 +99,34 @@
     align-items: center;
 }
 
-.jukeButtons {
-    display: inline;
-    width: 30px;
-    height: 30px;
-    margin-right: 5px;
+.sound {
+    display: inline-flex;
+    margin-right: 2px;
+    width: 176px;
     color: var(--color-red);
     border: 1px solid var(--color-red);
     background-color: var(--bg-light-yellow);
+    justify-content: center;
     text-align: center;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.arrow {
+    background: none;
+    width: 0;
+	height: 0;
+    padding: 0;
+    margin: 3px;
+    border: none;
+    border-radius: 0%;
+    border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 20px solid var(--color-gray);
     cursor: pointer;
 }
 
-.sound {
-    color: var(--color-red);
-}
-
-.arrow-right {
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    border-left: 15px solid var(--theme-color);
+:is(.sound):where(:hover, :focus-visible) {
+    transform: translate(3px, -3px);
+    box-shadow: -1.5px 1.5px color-mix(in hsl, var(--color-red) 70%, hsl(0, 0%, 0%) 30%), -3px 3px color-mix(in hsl, var(--color-red) 70%, hsl(0, 0%, 0%) 30%);
 }
