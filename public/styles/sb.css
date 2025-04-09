@@ -47,6 +47,21 @@
     background-color: var(--bg-darker);
 }
 
+#search {
+    margin-top: 120px;
+    margin-left: 55px;
+}
+
+#searchButton {
+    height: 35px;
+    width: 35px;
+}
+
+#searchButton img {
+    width: 20px;
+    height: 20px;
+}
+
 #buttonFrame {
     display: flexbox;
     width: 450px;
@@ -99,6 +114,12 @@
     align-items: center;
 }
 
+.reflective {
+    opacity: 60%;
+    border: solid white 2px;
+    -webkit-box-reflect: below 0px linear-gradient(transparent, transparent, #0005);
+}
+
 .sound {
     display: inline-flex;
     margin-right: 2px;
@@ -115,14 +136,14 @@
 .arrow {
     background: none;
     width: 0;
-	height: 0;
+    height: 0;
     padding: 0;
     margin: 3px;
     border: none;
     border-radius: 0%;
     border-left: 10px solid transparent;
-	border-right: 10px solid transparent;
-	border-bottom: 20px solid var(--color-gray);
+    border-right: 10px solid transparent;
+    border-bottom: 20px solid var(--color-gray);
     cursor: pointer;
 }
 
