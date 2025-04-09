@@ -22,7 +22,8 @@ input {
 }
 
 #colorContent {
-    background-color: var(--bg-light);;
+	background-color: var(--bg-light);
+	;
 	color: #000000;
 }
 

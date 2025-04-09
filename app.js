@@ -41,11 +41,11 @@ app.get('/login', async (req, res) => {
             const { username, permissions, classID, className, classPermissions } = tokenData;
 
             const user = await db.get('SELECT * FROM users WHERE username = ?', [username]);
-            
+
             if (!user) {
                 await db.run('INSERT INTO users (username) VALUES (?)', [username]);
                 await db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions]);
-                
+
                 req.session.user = username;
                 req.session.permissions = permissions;
                 console.log("User inserted into database successfully!");
@@ -57,7 +57,7 @@ app.get('/login', async (req, res) => {
                     className
                 });
             }
-            
+
             res.redirect('/');
         } catch (error) {
             console.error("Database operation failed:", error);
@@ -83,11 +83,11 @@ app.get('/logout', (req, res) => {
 // Spotify authentication routes
 app.get('/spotifyLogin', (req, res) => {
     const scopes = [
-        'user-read-private', 
-        'user-read-email', 
-        'playlist-modify-public', 
-        'playlist-modify-private', 
-        'playlist-read-private', 
+        'user-read-private',
+        'user-read-email',
+        'playlist-modify-public',
+        'playlist-modify-private',
+        'playlist-read-private',
         'playlist-read-collaborative',
         'user-read-playback-state',
         'user-modify-playback-state',
@@ -159,9 +159,9 @@ app.get('/search', async (req, res) => {
             let track = tracks.find(track => {
                 const trackName = track.name.toLowerCase();
                 return trackName.includes('radio edit') ||
-                       trackName.includes('clean') ||
-                       trackName.includes('radio version') ||
-                       trackName.includes('clean version');
+                    trackName.includes('clean') ||
+                    trackName.includes('radio version') ||
+                    trackName.includes('clean version');
             });
 
             // If no specific clean version found, use the first non-explicit track
@@ -212,30 +212,30 @@ app.post('/play', async (req, res) => {
     try {
         // Get track details first to check if it's explicit
         const trackData = await spotifyApi.getTrack(match[1]);
-        
+
         // Check if the track is explicit
         if (trackData.body.explicit) {
-            return res.status(403).json({ 
+            return res.status(403).json({
                 error: "explicit",
-                message: "Cannot play explicit content" 
+                message: "Cannot play explicit content"
             });
         }
 
         const devicesData = await spotifyApi.getMyDevices();
         const devices = devicesData.body.devices;
-        
+
         if (devices.length === 0) {
             return res.status(400).json({ error: "No available devices found" });
         }
 
-        await spotifyApi.play({ 
-            uris: [uri], 
-            device_id: devices[0].id 
+        await spotifyApi.play({
+            uris: [uri],
+            device_id: devices[0].id
         });
 
-        res.json({ 
-            success: true, 
-            message: "Playing track!", 
+        res.json({
+            success: true,
+            message: "Playing track!",
             trackInfo: {
                 name: trackData.body.name,
                 artist: trackData.body.artists[0].name,
