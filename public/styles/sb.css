@@ -65,7 +65,7 @@
 #buttonFrame {
     display: flexbox;
     width: 450px;
-    height: fit-content;
+    height: 200px;
     margin: 10px auto;
     padding: 10px;
     background-color: var(--color-silver);
