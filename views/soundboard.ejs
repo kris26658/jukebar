@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="../styles/sb.css">
 </head>
 
-
 <body id="colorContent">
     <%- include("partials/header.ejs") %>
         <div id="content" class="contentBox">
@@ -19,7 +18,7 @@
                     <div id="halfScreen" class="jukebox">
                         <div id="search">
                             <input type="text" id="searchInput" class="reflective" placeholder="Search for a sound...">
-                            <button id="searchButton" class="reflective" input="searchSounds()">
+                            <button id="searchButton" class="reflective" onclick="searchSounds()">
                                 <img src="../images/search.webp" alt="Search">
                             </button>
                         </div>
@@ -29,6 +28,9 @@
                             <button id="prevPage" class="arrow" disabled></button>
                             <button id="nextPage" class="arrow"></button>
                         </div>
+                        <div id="pageCounter">
+                            Page <span id="currentPage">1</span>/<span id="totalPages">1</span>
+                        </div>
                         <div id="buttonPages"></div>
                     </div>
                     <div id="border2" class="jukebox">
@@ -37,191 +39,190 @@
                 </div>
             </div>
         </div>
-        <script>
-            let userPermissions = 5; //Set user permissions (adjust as needed)
-            let playSounds = true;
+</body>
 
-            const soundList = [
-                { id: '19dfnc', name: '$19 Fortnite card' },
-                { id: 'afewmomentslater', name: 'A few moments later...' },
-                { id: 'alarmclock', name: 'Alarm clock' },
-                { id: 'amongusstart', name: 'Among us' },
-                { id: 'applause', name: 'Applause' },
-                { id: 'bennyhill', name: 'Benny hill' },
-                { id: 'bombdefused', name: 'Bomb defused' },
-                { id: 'britishmusic', name: 'British music' },
-                { id: 'bruh', name: 'Bruh' },
-                { id: 'butterdog', name: 'Butterdog' },
-                { id: 'clicknice', name: 'Click nice' },
-                { id: 'crickets', name: 'Crickets' },
-                { id: 'curbyourenthusiasm', name: 'Curb your enthusiasm' },
-                { id: 'dialup', name: 'Dial up' },
-                { id: 'dogofwisdom', name: 'Dog of wisdom' },
-                { id: 'dukenukem', name: 'Duke nukem' },
-                { id: 'dundundun', name: 'DUNDUNDUN' },
-                { id: 'elevatormusic', name: 'Elevator music' },
-                { id: 'enemyspotted', name: 'Enemy spotted' },
-                { id: 'epicsaxguy', name: 'Epic sax guy' },
-                { id: 'every60seconds', name: 'Every 60 seconds' },
-                { id: 'fbi', name: 'FBI open up' },
-                { id: 'feellikeanut', name: 'Feel like a nut' },
-                { id: 'FinalFantasyVictoryDGKS', name: 'Final Fantasy Victory' },
-                { id: 'falconpunch', name: 'Falcon Punch' },
-                { id: 'gangstasparadise', name: 'Gangsta paradise' },
-                { id: 'getout', name: 'GET OUT' },
-                { id: 'halotheme', name: 'Halo theme' },
-                { id: 'highnoon', name: 'High noon' },
-                { id: 'howdareyou', name: 'How dare you' },
-                { id: 'inception', name: 'Inception' },
-                { id: 'intelinside', name: 'Intel inside' },
-                { id: 'iphonealarm', name: "Iphone alarm" },
-                { id: "ivefallen", name: "I've Fallen" },
-                { id: "johncena", name: "John Cena" },
-                { id: "kahootslobby1", name: "Kahoot lobby" },
-                { id: "legofallapart", name: "Lego fall apart" },
-                { id: "legoyodadeath", name: "Lego Yoda" },
-                { id: "lockedinninja", name: "Locked in ninja" },
-                { id: "lowtaperfade", name: "LOOOOW taper fade" },
-                { id: "mariodeath", name: "Mario dies" },
-                { id: "mgsalert", name: "MGS alert" },
-                { id: "missionfailed", name: "Mission failed" },
-                { id: "mlgairhorn", name: "MLG airhorn" },
-                { id: "nani", name: "Nani" },
-                { id: "nogodpleaseno", name: "No god please no" },
-                { id: "ohyesdaddy", name: "Oh yes daddy" },
-                { id: "peanutbutterjelly", name: "Peanut butter jelly" },
-                { id: "pinkpanther", name: "Pink Panther" },
-                { id: "pizzapizza", name: "Pizza pizza" },
-                { id: "rickroll", name: "Rick roll" },
-                { id: "roundabout", name: "Round about" },
-                { id: "scream", name: "Scream" },
-                { id: "spicymeatball", name: "Spicy meatball" },
-                { id: "steammessage", name: "Steam message" },
-                { id: "tacobell", name: "Taco Bell" },
-                { id: "thatsalotofdamage", name: "That's a lot of damage" },
-                { id: "thatwaseasy", name: "That was easy" },
-                { id: "thisismyhouse", name: "This is my house" },
-                { id: "vienboom", name: "Vine boom" },
-                { id: "watchasay", name: "Wathca say" },
-                { id: "wat", name: "WHAT" },
-                { id: "wassup", name: "Wassup" },
-                { id: "win95start", name: "Windows 95" },
-                { id: "winxpstart", name: "Windows XP start" },
-                { id: "winxpshutdown", name: "Windows XP shutdown" },
-                { id: "wompwomp", name: "Womp womp" },
-                { id: "xperror", name: "XP error" },
-                { id: "yaykidst", name: "YAY" },
-                { id: "zawarudo", name: "ZAWARUDO!" },
-                { id: "stopitgetsomehelp", name: "Stop it, get some help" },
-                { id: "redspyisinthebase", name: "Red spy is in the base" },
-                { id: "pikmin", name: "Pikmin" },
-                { id: "brotherew", name: "Brother Eww" },
-                { id: "turtles", name: "I like turtles" },
-                { id: "finishhim", name: "Finish him!" },
-                { id: "prowler", name: "Prowler Theme" },
-                { id: "dipper", name: "Dippers song" },
-                { id: "yippee", name: "Yippee!" },
-            ];
+<script>
+    const soundList = [
+        { id: '19dfnc', name: '$19 Fortnite card' },
+        { id: 'afewmomentslater', name: 'A few moments later...' },
+        { id: 'alarmclock', name: 'Alarm clock' },
+        { id: 'amongusstart', name: 'Among us' },
+        { id: 'applause', name: 'Applause' },
+        { id: 'bennyhill', name: 'Benny hill' },
+        { id: 'bombdefused', name: 'Bomb defused' },
+        { id: 'britishmusic', name: 'British music' },
+        { id: 'bruh', name: 'Bruh' },
+        { id: 'butterdog', name: 'Butterdog' },
+        { id: 'clicknice', name: 'Click nice' },
+        { id: 'crickets', name: 'Crickets' },
+        { id: 'curbyourenthusiasm', name: 'Curb your enthusiasm' },
+        { id: 'dialup', name: 'Dial up' },
+        { id: 'dogofwisdom', name: 'Dog of wisdom' },
+        { id: 'dukenukem', name: 'Duke nukem' },
+        { id: 'dundundun', name: 'DUNDUNDUN' },
+        { id: 'elevatormusic', name: 'Elevator music' },
+        { id: 'enemyspotted', name: 'Enemy spotted' },
+        { id: 'epicsaxguy', name: 'Epic sax guy' },
+        { id: 'every60seconds', name: 'Every 60 seconds' },
+        { id: 'fbi', name: 'FBI open up' },
+        { id: 'feellikeanut', name: 'Feel like a nut' },
+        { id: 'FinalFantasyVictoryDGKS', name: 'Final Fantasy Victory' },
+        { id: 'falconpunch', name: 'Falcon Punch' },
+        { id: 'gangstasparadise', name: 'Gangsta paradise' },
+        { id: 'getout', name: 'GET OUT' },
+        { id: 'halotheme', name: 'Halo theme' },
+        { id: 'highnoon', name: 'High noon' },
+        { id: 'howdareyou', name: 'How dare you' },
+        { id: 'inception', name: 'Inception' },
+        { id: 'intelinside', name: 'Intel inside' },
+        { id: 'iphonealarm', name: "Iphone alarm" },
+        { id: "ivefallen", name: "I've Fallen" },
+        { id: "johncena", name: "John Cena" },
+        { id: "kahootslobby1", name: "Kahoot lobby" },
+        { id: "legofallapart", name: "Lego fall apart" },
+        { id: "legoyodadeath", name: "Lego Yoda" },
+        { id: "lockedinninja", name: "Locked in ninja" },
+        { id: "lowtaperfade", name: "LOOOOW taper fade" },
+        { id: "mariodeath", name: "Mario dies" },
+        { id: "mgsalert", name: "MGS alert" },
+        { id: "missionfailed", name: "Mission failed" },
+        { id: "mlgairhorn", name: "MLG airhorn" },
+        { id: "nani", name: "Nani" },
+        { id: "nogodpleaseno", name: "No god please no" },
+        { id: "ohyesdaddy", name: "Oh yes daddy" },
+        { id: "peanutbutterjelly", name: "Peanut butter jelly" },
+        { id: "pinkpanther", name: "Pink Panther" },
+        { id: "pizzapizza", name: "Pizza pizza" },
+        { id: "rickroll", name: "Rick roll" },
+        { id: "roundabout", name: "Round about" },
+        { id: "scream", name: "Scream" },
+        { id: "spicymeatball", name: "Spicy meatball" },
+        { id: "steammessage", name: "Steam message" },
+        { id: "tacobell", name: "Taco Bell" },
+        { id: "thatsalotofdamage", name: "That's a lot of damage" },
+        { id: "thatwaseasy", name: "That was easy" },
+        { id: "thisismyhouse", name: "This is my house" },
+        { id: "vienboom", name: "Vine boom" },
+        { id: "watchasay", name: "Wathca say" },
+        { id: "wat", name: "WHAT" },
+        { id: "wassup", name: "Wassup" },
+        { id: "win95start", name: "Windows 95" },
+        { id: "winxpstart", name: "Windows XP start" },
+        { id: "winxpshutdown", name: "Windows XP shutdown" },
+        { id: "wompwomp", name: "Womp womp" },
+        { id: "xperror", name: "XP error" },
+        { id: "yaykidst", name: "YAY" },
+        { id: "zawarudo", name: "ZAWARUDO!" },
+        { id: "stopitgetsomehelp", name: "Stop it, get some help" },
+        { id: "redspyisinthebase", name: "Red spy is in the base" },
+        { id: "pikmin", name: "Pikmin" },
+        { id: "brotherew", name: "Brother Eww" },
+        { id: "turtles", name: "I like turtles" },
+        { id: "finishhim", name: "Finish him!" },
+        { id: "prowler", name: "Prowler Theme" },
+        { id: "dipper", name: "Dippers song" },
+        { id: "yippee", name: "Yippee!" },
+    ];
 
-            const maxSounds = 10; //number of sounds per page
-            let buttonCount = 0; //default button count
-            let currentPage = 1; //default page
-            const pages = []; // Array to hold page elements
+    let userPermissions = 5;
+    let playSounds = true;
 
-            function updatePage() {
-                pages.forEach((page, index) => {
-                    page.style.display = index === currentPage ? 'inline-block' : 'none';
-                });
-            }
+    let userPage = 0; //default page number
+    let pageCount = 0; //default page count
+    let buttonCount = 0; //default button count
+    const maxButtons = 8; //number of sound buttons per page
+    const totalPages = Math.ceil(soundList.length / maxButtons); //total number of pages
 
-            soundList.forEach(sound => {
-                if (buttonCount === 0) {
-                    //Create a new page container
-                    const page = document.createElement('div');
-                    page.id = `page${currentPage}`;
-                    page.classList.add('pages');
-                    pages.push(page);
+    const pagesContainer = document.getElementById('buttonPages');
+    const pageCounter = document.getElementById('pageCounter');
+    const pages = []; //array to hold page elements
 
-                    //Append the page to the buttonPages div
-                    document.getElementById('buttonPages').appendChild(page);
-                }
-                //Create a button for each sound
-                const button = document.createElement('button');
-                button.classList.add('sound');
-                button.textContent = sound.name;
-                button.id = sound.id;
-                button.dataset.soundSrc = `../sounds/${sound.id}.mp3`;
-                pages[pages.length - 1].appendChild(button);
+    function renderSounds(filteredSoundList, soundList) {
+        for (let i = 0; i < totalPages; i++) {
+            const page = document.createElement('div');
+            page.classList.add('page');
+            page.id = `page${i}`;
+            pagesContainer.appendChild(page);
+            pages.push(page); //add page to the array
+            pageCount++; //increment page count
+        }
 
-                //Increment buttonCount
-                buttonCount++;
+        renderedList = filteredSoundList || soundList; //use filtered list if available
+        renderedList.forEach(sound => {
+            //increment button count
+            buttonCount++;
 
-                //Check if the current page is full
-                if (buttonCount >= maxSounds) {
-                    buttonCount = 0;
-                    currentPage++;
-                    updatePage();
-                }
-            });
+            //check if button count exceeds max buttons
+            const currentPage = pages[Math.floor(buttonCount / maxButtons)];
 
-            document.getElementById('prevPage').addEventListener('click', () => {
-                if (currentPage > 0) {
-                    currentPage--;
-                    updatePage();
+            //create button element
+            const button = document.createElement('button');
+            button.classList.add('sound-button');
+            button.innerText = sound.name;
+            button.id = sound.id;
+            button.dataset.soundSrc = `../sounds/${sound.id}.mp3`;
+
+            currentPage.appendChild(button);
+
+            //add event listener to play sound on click
+            button.addEventListener('click', () => {
+                if (playSounds) {
+                    playSound(button.dataset.soundSrc);
                 }
             });
+        });
+        pages.forEach((page, index) => {
+            page.style.display = index === userPage ? 'inline-block' : 'none';
+        });
 
+        pageCounter.innerText = `Page ${userPage + 1} of ${totalPages}`;
+        document.getElementById('prevPage').disabled = userPage === 0;
+        document.getElementById('nextPage').disabled = userPage === totalPages - 1;
+    };
 
-            document.getElementById('nextPage').addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    updatePage();
-                }
+    function playSound(src) {
+        const audio = new Audio(src);
+        audio.play().catch(error => {
+            console.error('Error playing sound:', error);
+        });
+    }
+
+    function searchSounds() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const filteredSoundList = soundList.filter(sound => sound.name.toLowerCase().includes(searchTerm));
+
+        //clear previous buttons
+        userPage = 0;
+        totalPages = Math.ceil(filteredSoundList.length / soundsPerPage);
+
+        renderSounds(filteredSoundList);
+    }
+
+    //event listeners for pagination buttons
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (userPage > 0) {
+            userPage--;
+            renderSounds(soundList);
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+        if (userPage < totalPages) {
+            userPage++;
+            renderSounds(soundList);
+        }
+    });
+
+    window.onload = () => {
+        renderSounds(soundList);
+
+        document.querySelectorAll('.sound').forEach(button => {
+            button.addEventListener('click', (event) => {
+                playSound(button.dataset.soundSrc);
             });
-
-            function playSound(src) {
-                const audio = new Audio(src);
-                audio.play().catch(error => {
-                    console.error('Error playing sound:', error);
-                });
-            }
-
-            function searchSounds() {
-                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-                const soundButtons = document.querySelectorAll('.sound-button'); // Ensure soundButtons is defined
-
-                soundButtons.forEach(button => {
-                    if (button.id.toLowerCase().includes(searchTerm)) {
-                        button.style.display = 'inline-block';
-                    } else {
-                        button.style.display = 'none';
-                    }
-                });
-            }
-
-            // Debounce wrapper to delay execution
-            function debounce(func, delay) {
-                return (...args) => {
-                    let debounceTimeout; // Scoped to the debounce function
-                    clearTimeout(debounceTimeout);
-                    debounceTimeout = setTimeout(() => func(...args), delay);
-                };
-            }
-
-            window.onload = () => {
-                updatePage();
-
-                // Add event listener to search input with debounce
-                const searchInput = document.getElementById('searchInput');
-                searchInput.addEventListener('input', debounce(searchSounds, 300));
-
-                document.querySelectorAll('.sound').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        playSound(button.dataset.soundSrc);
-                    });
-                });
-            };
-        </script>
+        });
+    };
+</script>
 </body>
 
 </html>
