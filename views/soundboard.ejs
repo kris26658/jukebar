@@ -131,24 +131,32 @@
     let pageCount = 0; //default page count
     let buttonCount = 0; //default button count
     const maxButtons = 8; //number of sound buttons per page
-    const totalPages = Math.ceil(soundList.length / maxButtons); //total number of pages
 
     const pagesContainer = document.getElementById('buttonPages');
     const pageCounter = document.getElementById('pageCounter');
-    const pages = []; //array to hold page elements
+    const pages = []; //array to hold page elements 
+    const totalPages = Math.ceil(soundList.length / maxButtons); //total number of pages
 
-    function renderSounds(filteredSoundList, soundList) {
-        for (let i = 0; i < totalPages; i++) {
+    function renderSounds(filteredSoundList) {
+        //clear previous buttons and pages
+        pagesContainer.innerHTML = '';
+        pages.length = 0;
+        pageCount = 0;
+        buttonCount = 0;
+
+        //calculate total pages based on the filtered list
+        const totalPages = Math.ceil(filteredSoundList.length / maxButtons);
+
+        // Create pages dynamically
+        while (pageCount < Math.ceil(soundList.length / maxButtons)) {
             const page = document.createElement('div');
             page.classList.add('page');
-            page.id = `page${i}`;
             pagesContainer.appendChild(page);
-            pages.push(page); //add page to the array
-            pageCount++; //increment page count
+            pages.push(page);
+            pageCount++;
         }
 
-        renderedList = filteredSoundList || soundList; //use filtered list if available
-        renderedList.forEach(sound => {
+        filteredSoundList.forEach(sound => {
             //increment button count
             buttonCount++;
 
@@ -193,7 +201,7 @@
 
         //clear previous buttons
         userPage = 0;
-        totalPages = Math.ceil(filteredSoundList.length / soundsPerPage);
+        const totalPages = Math.ceil(filteredSoundList.length / maxButtons);
 
         renderSounds(filteredSoundList);
     }
@@ -207,11 +215,12 @@
     });
 
     document.getElementById('nextPage').addEventListener('click', () => {
-        if (userPage < totalPages) {
+        if (userPage < totalPages - 1) {
             userPage++;
             renderSounds(soundList);
         }
     });
+
 
     window.onload = () => {
         renderSounds(soundList);
