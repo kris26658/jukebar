@@ -24,11 +24,6 @@ router.get('/spotifyLogin', (_, res) => {
 router.get('/search', handleSpotifySearch);
 router.post('/play', handlePlayTrack);
 
-router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
-
 router.get('/youtube', (req, res) => {
     if (!req.session.user) {
         res.redirect(`http://${AUTH_URL}/oauth?redirectURL=http://localhost:3000/login`);
