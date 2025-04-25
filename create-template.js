@@ -3,25 +3,24 @@ const fs = require('fs');
 const path = require('path');
 
 try {
-    // Use absolute paths
     const dbDir = path.resolve(process.cwd(), 'db');
     const templatePath = path.join(dbDir, 'database-template.db');
 
     console.log('Database directory path:', dbDir);
     console.log('Template path:', templatePath);
 
-    // Create db directory with recursive option
+    // Create db directory
     if (!fs.existsSync(dbDir)) {
         console.log('Creating database directory...');
         fs.mkdirSync(dbDir, { recursive: true });
     }
 
-    // Verify directory was created
+    //directory was created
     if (!fs.existsSync(dbDir)) {
         throw new Error(`Failed to create directory: ${dbDir}`);
     }
 
-    // Create template database
+    //Create template
     console.log('Creating template database...');
     const db = new sqlite3.Database(templatePath);
 
@@ -56,8 +55,15 @@ try {
                 key TEXT
             )
         `);
+        
+        // Create spotify_queue table
+        db.run(`
+            CREATE TABLE IF NOT EXISTS spotify_queue (
+                uri TEXT PRIMARY KEY
+            )
+        `);
 
-        console.log('Template database created successfully');
+        // console.log('Template database created successfully');
     });
 
     db.close((err) => {
