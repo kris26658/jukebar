@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { spotifyApi, SPOTIFY_SCOPES } = require('./spotify/config');
 const { handleSpotifySearch, handlePlayTrack } = require('./spotify/handlers');
+const { AUTH_URL } = require('./authentication');
 
 router.get('/', (req, res) => {
     if (!req.session.user) {
-        res.redirect(`http://formbeta.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login`);
+        res.redirect(`${AUTH_URL}?redirectURL=http://localhost:3000/login`);
     } else {
         try {
             res.render('index.ejs', { username: req.session.user });
-            console.log(req.session.token);
         } catch (error) {
             console.error('Render Error:', error);
             res.status(500).send(error.message);
@@ -26,7 +26,7 @@ router.post('/play', handlePlayTrack);
 
 router.get('/youtube', (req, res) => {
     if (!req.session.user) {
-        res.redirect(`http://formbeta.yorktechapps.com0/oauth?redirectURL=http://localhost:3000/login`);
+        res.redirect(`http://${AUTH_URL}/oauth?redirectURL=http://localhost:3000/login`);
     } else {
         res.render('youtube.ejs');
     }
@@ -34,7 +34,7 @@ router.get('/youtube', (req, res) => {
 
 router.get('/spotify', (req, res) => {
     if (!req.session.user) {
-        res.redirect(`http://formbeta.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login`);
+        res.redirect(`http://${AUTH_URL}/oauth?redirectURL=http://localhost:3000/login`);
     } else {
         res.render('spotify.ejs');
     }
@@ -42,7 +42,7 @@ router.get('/spotify', (req, res) => {
 
 router.get('/soundboard', (req, res) => {
     if (!req.session.user) {
-        res.redirect(`http://formbeta.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login`);
+        res.redirect(`http://${AUTH_URL}/oauth?redirectURL=http://localhost:3000/login`);
     } else {
         res.render('soundboard.ejs');
     }

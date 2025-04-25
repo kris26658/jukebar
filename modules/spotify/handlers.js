@@ -1,4 +1,5 @@
 const { spotifyApi } = require('./config');
+const { getQueuedSongs } = require('./queue');
 
 const handleSpotifySearch = async (req, res) => {
     const { q } = req.query;
@@ -75,7 +76,37 @@ const handlePlayTrack = async (req, res) => {
     }
 };
 
+const handleGetQueue = async (req, res) => {
+    if (!spotifyApi.getAccessToken()) {
+        return res.status(401).json({ error: "Unauthorized: Access token missing or invalid" });
+    }
+
+    try {
+        const queuedSongs = await getQueuedSongs(100); // Get up to 100 songs from queue
+        const trackInfoPromises = queuedSongs.map(async (song) => {
+            const trackId = song.uri.split(':')[2]; // Extract ID from spotify:track:ID
+            const trackData = await spotifyApi.getTrack(trackId);
+            return {
+                name: trackData.body.name,
+                artist: trackData.body.artists[0].name,
+                uri: trackData.body.uri,
+                albumImage: trackData.body.album.images[trackData.body.album.images.length - 1]?.url
+            };
+        });
+
+        const queueItems = await Promise.all(trackInfoPromises);
+        res.json(queueItems);
+    } catch (err) {
+        console.error('Error fetching queue:', err);
+        res.status(500).json({ error: "Failed to fetch queue" });
+    }
+};
+
 module.exports = {
     handleSpotifySearch,
-    handlePlayTrack
+    handlePlayTrack,
+    handleGetQueue
 };
+
+
+
