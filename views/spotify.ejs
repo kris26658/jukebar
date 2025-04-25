@@ -59,10 +59,9 @@
                     search();
                 }
             });
-
-            function search() {
-                const query = document.getElementById('searchBar').value;
-                if (!query) return alert("Please enter a song name.");
+                    function search() {
+                        const query = document.getElementById('searchBar').value;
+                        if (!query) return alert("Please enter a song name.");
 
                 fetch(`/search?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
@@ -88,10 +87,8 @@
                         console.error('Search Error:', err);
                     });
             }
-
-            function playSong(uri) {
-                console.log("Attempting to play song with URI:", uri);
-
+                    function playSong(uri) {
+                        console.log("Attempting to play song with URI:", uri);
                 fetch('/play', {
                     method: "POST",
                     headers: {
