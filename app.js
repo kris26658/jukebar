@@ -293,7 +293,7 @@ app.post('/addToQueue', async (req, res) => {
         }
 
         const trackData = await spotifyApi.getTrack(match[1]);
-        
+
         await spotifyApi.addToQueue(uri);
 
         res.json({
@@ -357,9 +357,24 @@ app.get('/', (req, res) => {
 });
 
 app.post('/preview', async (req, res) => {
-    const { uri } = req.body;
-
+    const { PreviewUri } = req.body;
     
+    if (!PreviewUri) {
+        return res.status(400).json({ error: "Missing track URI" });
+    }
+
+    try {
+        const trackId = PreviewUri.split(':')[2]; // Extract ID from spotify:track:ID
+        
+        // Send back just the track ID for the iframe
+        res.json({
+            success: true,
+            previewUrl: trackId
+        });
+    } catch (err) {
+        console.error('Preview Error:', err);
+        res.status(500).json({ error: "Failed to process preview request" });
+    }
 });
 
 // Start server
