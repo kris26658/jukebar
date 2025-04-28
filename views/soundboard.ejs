@@ -43,39 +43,39 @@
 
 <script>
     const soundList = [
-        { id: '19dfnc', name: '$19 Fortnite card' },
-        { id: 'afewmomentslater', name: 'A few moments later...' },
-        { id: 'alarmclock', name: 'Alarm clock' },
-        { id: 'amongusstart', name: 'Among us' },
-        { id: 'applause', name: 'Applause' },
-        { id: 'bennyhill', name: 'Benny hill' },
-        { id: 'bombdefused', name: 'Bomb defused' },
-        { id: 'britishmusic', name: 'British music' },
-        { id: 'bruh', name: 'Bruh' },
-        { id: 'butterdog', name: 'Butterdog' },
-        { id: 'clicknice', name: 'Click nice' },
-        { id: 'crickets', name: 'Crickets' },
-        { id: 'curbyourenthusiasm', name: 'Curb your enthusiasm' },
-        { id: 'dialup', name: 'Dial up' },
-        { id: 'dogofwisdom', name: 'Dog of wisdom' },
-        { id: 'dukenukem', name: 'Duke nukem' },
-        { id: 'dundundun', name: 'DUNDUNDUN' },
-        { id: 'elevatormusic', name: 'Elevator music' },
-        { id: 'enemyspotted', name: 'Enemy spotted' },
-        { id: 'epicsaxguy', name: 'Epic sax guy' },
-        { id: 'every60seconds', name: 'Every 60 seconds' },
-        { id: 'fbi', name: 'FBI open up' },
-        { id: 'feellikeanut', name: 'Feel like a nut' },
-        { id: 'FinalFantasyVictoryDGKS', name: 'Final Fantasy Victory' },
-        { id: 'falconpunch', name: 'Falcon Punch' },
-        { id: 'gangstasparadise', name: 'Gangsta paradise' },
-        { id: 'getout', name: 'GET OUT' },
-        { id: 'halotheme', name: 'Halo theme' },
-        { id: 'highnoon', name: 'High noon' },
-        { id: 'howdareyou', name: 'How dare you' },
-        { id: 'inception', name: 'Inception' },
-        { id: 'intelinside', name: 'Intel inside' },
-        { id: 'iphonealarm', name: "Iphone alarm" },
+        { id: "19dfnc", name: "$19 Fortnite card" },
+        { id: "afewmomentslater", name: "A few moments later..." },
+        { id: "alarmclock", name: "Alarm clock" },
+        { id: "amongusstart", name: "Among us" },
+        { id: "applause", name: "Applause" },
+        { id: "bennyhill", name: "Benny hill" },
+        { id: "bombdefused", name: "Bomb defused" },
+        { id: "britishmusic", name: "British music" },
+        { id: "bruh", name: "Bruh" },
+        { id: "butterdog", name: "Butterdog" },
+        { id: "clicknice", name: "Click nice" },
+        { id: "crickets", name: "Crickets" },
+        { id: "curbyourenthusiasm", name: "Curb your enthusiasm" },
+        { id: "dialup", name: "Dial up" },
+        { id: "dogofwisdom", name: "Dog of wisdom" },
+        { id: "dukenukem", name: "Duke nukem" },
+        { id: "dundundun", name: "DUNDUNDUN" },
+        { id: "elevatormusic", name: "Elevator music" },
+        { id: "enemyspotted", name: "Enemy spotted" },
+        { id: "epicsaxguy", name: "Epic sax guy" },
+        { id: "every60seconds", name: "Every 60 seconds" },
+        { id: "fbi", name: "FBI open up" },
+        { id: "feellikeanut", name: "Feel like a nut" },
+        { id: "FinalFantasyVictoryDGKS", name: "Final Fantasy Victory" },
+        { id: "falconpunch", name: "Falcon Punch" },
+        { id: "gangstasparadise", name: "Gangsta paradise" },
+        { id: "getout", name: "GET OUT" },
+        { id: "halotheme", name: "Halo theme" },
+        { id: "highnoon", name: "High noon" },
+        { id: "howdareyou", name: "How dare you" },
+        { id: "inception", name: "Inception" },
+        { id: "intelinside", name: "Intel inside" },
+        { id: "iphonealarm", name: "Iphone alarm" },
         { id: "ivefallen", name: "I've Fallen" },
         { id: "johncena", name: "John Cena" },
         { id: "kahootslobby1", name: "Kahoot lobby" },
@@ -124,112 +124,103 @@
         { id: "yippee", name: "Yippee!" },
     ];
 
-    let userPermissions = 5;
-    let playSounds = true;
+    //user permissions variables
+    const userPermissions = 5;
+    const playSounds = true;
 
-    let userPage = 0; //default page number
-    let pageCount = 0; //default page count
-    let buttonCount = 0; //default button count
-    const maxButtons = 8; //number of sound buttons per page
+    //soundboard variables
+    const pagesContainer = document.getElementById("buttonPages");
+    const pageCounter = document.getElementById("pageCounter");
+    const searchInput = document.getElementById("searchInput");
 
-    const pagesContainer = document.getElementById('buttonPages');
-    const pageCounter = document.getElementById('pageCounter');
-    const pages = []; //array to hold page elements 
-    const totalPages = Math.ceil(soundList.length / maxButtons); //total number of pages
+    let userPage = 0; //page displayed to the user
+    const maxButtons = 8; //default sound buttons per page
+    const pages = []; //array to keep track of page elements
+
+    let filteredSoundList = soundList; //cache the filtered list
 
     function renderSounds(filteredSoundList) {
         //clear previous buttons and pages
-        pagesContainer.innerHTML = '';
+        pagesContainer.innerHTML = "";
         pages.length = 0;
-        pageCount = 0;
-        buttonCount = 0;
 
         //calculate total pages based on the filtered list
         const totalPages = Math.ceil(filteredSoundList.length / maxButtons);
 
-        // Create pages dynamically
-        while (pageCount < Math.ceil(soundList.length / maxButtons)) {
-            const page = document.createElement('div');
-            page.classList.add('page');
+        //create pages dynamically
+        for (let i = 0; i < totalPages; i++) {
+            const page = document.createElement("div");
+            page.classList.add("page");
             pagesContainer.appendChild(page);
             pages.push(page);
-            pageCount++;
         }
 
-        filteredSoundList.forEach(sound => {
-            //increment button count
-            buttonCount++;
-
-            //check if button count exceeds max buttons
-            const currentPage = pages[Math.floor(buttonCount / maxButtons)];
+        //create buttons for each sound and assign to pages
+        filteredSoundList.forEach((sound, index) => {
+            const currentPage = pages[Math.floor(index / maxButtons)];
 
             //create button element
-            const button = document.createElement('button');
-            button.classList.add('sound-button');
+            const button = document.createElement("button");
+            button.classList.add("sound");
             button.innerText = sound.name;
             button.id = sound.id;
-            button.dataset.soundSrc = `../sounds/${sound.id}.mp3`;
+            button.dataset.soundSrc = `../sfx/${sound.id}.mp3`;
 
-            currentPage.appendChild(button);
-
-            //add event listener to play sound on click
-            button.addEventListener('click', () => {
-                if (playSounds) {
-                    playSound(button.dataset.soundSrc);
-                }
-            });
+            currentPage.appendChild(button); //append button to the current page
         });
+
+        //update page visibility and controls
         pages.forEach((page, index) => {
-            page.style.display = index === userPage ? 'inline-block' : 'none';
+            page.style.display = index === userPage ? "inline-block" : "none";
         });
 
         pageCounter.innerText = `Page ${userPage + 1} of ${totalPages}`;
-        document.getElementById('prevPage').disabled = userPage === 0;
-        document.getElementById('nextPage').disabled = userPage === totalPages - 1;
-    };
+        document.getElementById("prevPage").disabled = userPage === 0;
+        document.getElementById("nextPage").disabled = userPage === totalPages - 1;
+    }
+
+    function searchSounds() {
+        const searchTerm = searchInput.value.toLowerCase();
+        filteredSoundList = soundList.filter(sound => sound.name.toLowerCase().includes(searchTerm));
+
+        //reset pagination and render the filtered list
+        userPage = 0;
+        renderSounds(filteredSoundList);
+    }
+
+    function changePage(direction) {
+        const totalPages = Math.ceil(filteredSoundList.length / maxButtons);
+        if ((direction === 'prev' && userPage > 0) || (direction === 'next' && userPage < totalPages - 1)) {
+            userPage += direction === 'prev' ? -1 : 1;
+            renderSounds(filteredSoundList);
+        }
+    }
 
     function playSound(src) {
         const audio = new Audio(src);
         audio.play().catch(error => {
-            console.error('Error playing sound:', error);
+            console.error("Error playing sound:", error);
         });
     }
 
-    function searchSounds() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const filteredSoundList = soundList.filter(sound => sound.name.toLowerCase().includes(searchTerm));
-
-        //clear previous buttons
-        userPage = 0;
-        const totalPages = Math.ceil(filteredSoundList.length / maxButtons);
-
-        renderSounds(filteredSoundList);
-    }
-
-    //event listeners for pagination buttons
-    document.getElementById('prevPage').addEventListener('click', () => {
-        if (userPage > 0) {
-            userPage--;
-            renderSounds(soundList);
-        }
-    });
-
-    document.getElementById('nextPage').addEventListener('click', () => {
-        if (userPage < totalPages - 1) {
-            userPage++;
-            renderSounds(soundList);
-        }
-    });
-
-
+    //initialize the soundboard on page load
     window.onload = () => {
+        //render default sound list
         renderSounds(soundList);
 
-        document.querySelectorAll('.sound').forEach(button => {
-            button.addEventListener('click', (event) => {
-                playSound(button.dataset.soundSrc);
-            });
+        //event listeners for pagination buttons
+        document.getElementById('prevPage').addEventListener('click', () => changePage('prev'));
+        document.getElementById('nextPage').addEventListener('click', () => changePage('next'));
+
+        //event listener for sound buttons
+        pagesContainer.addEventListener("click", (event) => {
+            if (event.target.classList.contains("sound")) {
+                playSound(event.target.dataset.soundSrc);
+            }
         });
+
+        //event listener for search input
+        searchInput.addEventListener("input", searchSounds);
     };
 </script>
 </body>
