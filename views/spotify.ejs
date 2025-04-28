@@ -19,7 +19,8 @@
                         <p>Search for a song to play:</p>
                         <div class="search-container">
                             <input type="text" id="searchBar" placeholder="Search for a song">
-                            <button type="submit" class="searchButton" onclick="search()">Search</button>
+                            <button type="submit" class="searchButton" id="searchButton">Search</button>
+
                         </div>
                     </div>
                     <div id="searchResults"></div>
@@ -50,7 +51,7 @@
             const current = document.getElementById("current");
             const searchResults = document.getElementById("searchResults");
             const searchBar = document.getElementById("searchBar");
-            const preview = document.getElementById("preview");
+            const previewDiv = document.getElementById("preview");
 
             // Add enter key support for search
             searchBar.addEventListener("keypress", function (event) {
@@ -87,6 +88,10 @@
                     .catch(err => {
                         console.error('Search Error:', err);
                     });
+            }
+
+            function buttonClick(){
+                console.log("Button clicked!");
             }
 
             function playSong(uri) {
@@ -138,8 +143,7 @@
             }
 
             function preview(trackId) {
-                const preview = document.getElementById('preview');
-                preview.innerHTML = `
+                previewDiv.innerHTML = `
                     <h3>Preview:</h3>
                     <iframe style="border-radius:12px"
                         src="https://open.spotify.com/embed/track/${trackId}?utm_source=generator&t=30"
@@ -153,12 +157,21 @@
                 `;
             }
 
-            // Remove the updateQueue function and interval since we're not managing our own queue anymore
-
             document.addEventListener("DOMContentLoaded", function () {
+                const searchButton = document.getElementById('searchButton');
+                const searchBar = document.getElementById('searchBar');
+
+                searchButton.addEventListener('click', search);
+                searchBar.addEventListener('keypress', function (event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        search();
+                    }
+                });
+
                 let currentUri = null;
 
-                function fectchCurrent() {
+                function fetchCurrent() {
                     fetch('/currentSong')
                         .then(response => response.json())
                         .then(data => {
@@ -182,12 +195,8 @@
                         });
                 }
 
-                fectchCurrent();
-                setInterval(fectchCurrent, 500);
-
-                // Update queue initially and every 5 seconds
-                updateQueue();
-                setInterval(updateQueue, 5000);
+                fetchCurrent();
+                setInterval(fetchCurrent, 500);
             });
         </script>
 </body>
