@@ -62,6 +62,7 @@ app.get('/login', async (req, res) => {
                 await db.run('INSERT INTO users (username) VALUES (?)', [username]);
                 await db.run('INSERT INTO classusers (permissions) VALUES (?)', [permissions]);
                 console.log("New user inserted successfully");
+
                 req.session.user = username;
                 req.session.permissions = permissions;
             } else {
@@ -74,6 +75,7 @@ app.get('/login', async (req, res) => {
                     className
                 });
             }
+
             // Redirect to the home page
             console.log("Redirecting to home page...");
             res.redirect('/');
@@ -96,17 +98,6 @@ app.get('/login', async (req, res) => {
     }
 });
 
-// Logout route
-app.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error destroying session:', err);
-            return res.status(500).send('Logout failed');
-        }
-        console.log('Redirecting to oauth server');
-        res.redirect('http://formbeta.yorktechapps.com/oauth?redirectURL=http://localhost:3000/login');
-    });
-});
 
 // Spotify authentication routes
 app.get('/spotifyLogin', (req, res) => {
@@ -265,7 +256,9 @@ app.post('/play', async (req, res) => {
             uris: [uri],
             device_id: devices[0].id
         });
+
         await removeSongFromQueue(uri);
+
         res.json({
             success: true,
             message: "Playing track!",
