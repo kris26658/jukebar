@@ -58,6 +58,10 @@
                 const query = document.getElementById('searchBar').value;
                 if (!query) return alert("Please enter a song name.");
 
+            function search() {
+                const query = document.getElementById('searchBar').value;
+                if (!query) return alert("Please enter a song name.");
+
                 fetch(`/search?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
@@ -82,6 +86,10 @@
                         console.error('Search Error:', err);
                     });
             }
+
+            function playSong(uri) {
+                console.log("Attempting to play song with URI:", uri);
+
 
             function buttonClick(){
                 console.log("Button clicked!");

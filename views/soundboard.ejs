@@ -10,19 +10,80 @@
 </head>
 
 
+
 <body id="colorContent">
     <%- include("partials/header.ejs") %>
-        <div id="content" class="contentBox">
-            <h1 id="pageTitle">Soundboard</h1>
-            <div id="border" class="jukebox">
-                <div id="wood" class="jukebox">
-                    <div id="halfScreen" class="jukebox">
-                        <div id="search">
-                            <input type="text" id="searchInput" class="reflective" placeholder="Search for a sound...">
-                            <button id="searchButton" class="reflective" onclick="searchSounds()">
-                                <img src="../images/search.webp" alt="Search">
-                            </button>
-                        </div>
+    <div id="content" class="contentBox">
+        <h1 id="pageTitle">Soundboard</h1>
+        <div id="border" class="jukebox">
+            <div id="wood" class="jukebox">
+                <div id="halfScreen" class="jukebox"></div>
+                <div id="buttonFrame" class="jukebox">
+                    <!-- Page 1 -->
+                    <div class="button-page" id="page-1">
+                        <button class="sound" id="19dfnc">19 dollar Fortnite card</button>
+                        <button class="sound" id="afewmomentslater">A few moments later</button>
+                        <button class="sound" id="alarmclock">Alarm clock</button>
+                        <button class="sound" id="amongusstart">Among us</button>
+                        <button class="sound" id="applause">Applause</button>
+                        <button class="sound" id="bennyhill">Benny hill</button>
+                        <button class="sound" id="bombdefused">Bomb defused</button>
+                        <button class="sound" id="britishmusic">British music</button>
+                        <button class="sound" id="bruh">Bruh</button>
+                        <button class="sound" id="butterdog">Butterdog</button>
+                    </div>
+                    <!-- Page 2 -->
+                    <div class="button-page" id="page-2" style="display: none;">
+                        <button class="sound" id="clicknice">Click nice</button>
+                        <button class="sound" id="crickets">Crickets</button>
+                        <button class="sound" id="curbyourenthusiasm">Curb your enthusiasm</button>
+                        <button class="sound" id="dialup">Dial up</button>
+                        <button class="sound" id="dogofwisdom">Dog of wisdom</button>
+                        <button class="sound" id="dukenukem">Duke nukem</button>
+                        <button class="sound" id="dundundun">DUNDUNDUN</button>
+                        <button class="sound" id="elevatormusic">Elevator music</button>
+                        <button class="sound" id="enemyspotted">Enemy spotted</button>
+                        <button class="sound" id="epicsaxguy">Epic sax guy</button>
+                    </div>
+                    <!-- Page 3 -->
+                    <!-- Page 3 -->
+                    <div class="button-page" id="page-3" style="display: none;">
+                        <button class="sound" id="every60seconds">Every 60 seconds</button>
+                        <button class="sound" id="fbi">FBI open up</button>
+                        <button class="sound" id="feellikeanut">Feel like a nut</button>
+                        <button class="sound" id="FinalFantasyVictoryDGKS">Final Fantasy Victory</button>
+                        <button class="sound" id="falconpunch">Falcon Punch</button>
+                        <button class="sound" id="gangstasparadise">Gangsta paradise</button>
+                        <button class="sound" id="getout">GET OUT</button>
+                        <button class="sound" id="halotheme">Halo theme</button>
+                        <button class="sound" id="highnoon">High noon</button>
+                        <button class="sound" id="howdareyou">How dare you</button>
+                    </div>
+                    <!-- Page 4 -->
+                    <div class="button-page" id="page-4" style="display: none;">
+                        <button class="sound" id="inception">Inception</button>
+                        <button class="sound" id="intelinside">Intel inside</button>
+                        <button class="sound" id="iphonealarm">Iphone alarm</button>
+                        <button class="sound" id="ivefallen">I've Fallen</button>
+                        <button class="sound" id="johncena">John Cena</button>
+                        <button class="sound" id="kahootslobby1">Kahoot lobby</button>
+                        <button class="sound" id="legofallapart">Lego fall apart</button>
+                        <button class="sound" id="legoyodadeath">Lego Yoda</button>
+                        <button class="sound" id="lockedinninja">Locked in ninja</button>
+                        <button class="sound" id="lowtaperfade">LOOOOW taper fade</button>
+                    </div>
+                    <!-- Page 5 -->
+                    <div class="button-page" id="page-5" style="display: none;">
+                        <button class="sound" id="mariodeath">Mario dies</button>
+                        <button class="sound" id="mgsalert">MGS alert</button>
+                        <button class="sound" id="missionfailed">Mission failed</button>
+                        <button class="sound" id="mlgairhorn">MLG airhorn</button>
+                        <button class="sound" id="nani">Nani</button>
+                        <button class="sound" id="nogodpleaseno">No god please no</button>
+                        <button class="sound" id="ohyesdaddy">Oh yes daddy</button>
+                        <button class="sound" id="peanutbutterjelly">Peanut butter jelly</button>
+                        <button class="sound" id="pinkpanther">Pink Panther</button>
+                        <button class="sound" id="pizzapizza">Pizza pizza</button>
                     </div>
                     <div id="buttonFrame" class="jukebox">
                         <div id="pagination-controls">
