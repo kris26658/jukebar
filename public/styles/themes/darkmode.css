@@ -26,12 +26,12 @@ select {
 	color: var(--color-black);
 }
 
-#content .tab {
-	background-color: var(--light-gray);
-	color: var(--color-black);
-}
-
 #video {
 	background-color: var(--bg-dark);
 	color: var(--color-white);
+}
+
+.column {
+	background-color: var(--light-gray);
+	color: var(--color-black);
 }
