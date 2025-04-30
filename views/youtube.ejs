@@ -5,33 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Youtube Ripper</title>
+    <link rel="stylesheet" href="../styles/yt.css">
 </head>
 
-<body>
+<body id="colorContent">
     <%- include("partials/header.ejs") %>
-        <h1>Youtube Ripper</h1>
+        <div id="content" class="contentBox">
+            <h1 id="pageTitle">Youtube Ripper</h1>
 
-        <form id="youtube-form">
-            <label for="url">Enter a youtube URL:</label>
-            <input type="text" id="url" name="url">
-            <button type="submit">Submit</button>
-        </form>
+            <form id="youtube-form">
+                <label for="url">Enter a youtube URL:</label>
+                <input type="text" id="url" name="url">
+                <button type="submit">Submit</button>
+            </form>
 
-        <div id="pageTitle">
-            <h1>Youtube Ripper</h1>
+            <div id="border">
+                <div id="video"></div>
+            </div>
+            <div id="history">
+                <h2>Last 10 Videos Played (most recent at the top)</h2>
+                <ul id="video-list"></ul>
+            </div>
         </div>
-        <form id="youtube-form">
-            <label for="url">Enter a youtube URL:</label>
-            <input type="text" id="url" name="url">
-            <button type="submit">Submit</button>
-        </form>
-
-        <div id="video"></div>
-        <div id="history">
-            <h2>Last 10 Videos Played (most recent at the top)</h2>
-            <ul id="video-list"></ul>
-        </div>
-        <button onclick="window.location.href='/'">Go back to home</button>
         <script>
 
             //submits the form and loads the video, checks if video has a youtube url
@@ -56,9 +51,12 @@
             const video = document.getElementById('video');
             const url = new URL(window.location.href);
             const videoId = url.searchParams.get('v');
+
             if (videoId) {
                 video.innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
                 saveVideoId(videoId);
+            } else {
+                video.innerHTML = `<div class="video-placeholder">Please enter a youtube URL to watch a video.</div>`;
             }
 
             //saves the video id to local storage
