@@ -32,6 +32,10 @@ select {
 }
 
 .column {
-	background-color: var(--light-gray);
-	color: var(--color-black);
+	background-color: var(--bg-dark);
+	color: var(--color-white);
+}
+
+.column h3 {
+	color: var(--bg-light-green);
 }
