@@ -206,9 +206,10 @@ button {
 
 #playPartial {
     z-index: 1;
-    position: fixed;
+    position: absolute;
+    right: 40px;
+    top: 150px;
     width: 270px;
-    margin: 100px 25px;
     padding: 20px;
     background-color: var(--color-white);
     border-radius: 8px;
