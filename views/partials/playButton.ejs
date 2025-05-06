@@ -1,0 +1,19 @@
+<div id="playPartial">
+    <h3>Currently Selected:</h3>
+    <div id="storedAudio"></div>
+    
+    <button id="playButton" onclick="sendAudio()">
+        <div id="playIcon"></div>
+    </button>
+    <p class="caption">Click this button to play your sound with formbar!</p>
+</div>
+
+<script>
+    let storedAudio = localStorage.getItem('audioFile');
+
+    if (storedAudio) {
+        document.getElementById('storedAudio').innerHTML = `<${storedAudio.page}: <${storedAudio.name}>`;
+    } else {
+        document.getElementById('storedAudio').innerHTML = `No audio file found.`;
+    }
+</script>
