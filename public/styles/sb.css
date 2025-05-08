@@ -1,9 +1,5 @@
 /* Tags */
 
-* {
-    box-sizing: border-box;
-}
-
 @keyframes gradient {
     0% {
         background-position: 0% 0%;
@@ -112,6 +108,7 @@
     border: 5px inset var(--color-silver);
     justify-content: center;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .reflective {
