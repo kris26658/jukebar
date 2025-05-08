@@ -216,9 +216,10 @@ button {
     border: solid 2px var(--color-silver);
 }
 
-#storedAudio {
-    font-size: 12px;
-    color: var(--color-gray);
+#storedAudio p {
+    color: var(--color-red);
+    font-weight: bold;
+    text-transform: uppercase;;
 }
 
 #playButton {
